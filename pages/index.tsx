@@ -93,7 +93,8 @@ const IndexPage = (props: Props) => {
                 size="7"
                 weight="4"
               >
-                I'm a masters student in Computer Science @UPenn SEAS with a concentration in Artificial Intelligence.
+                I'm a masters student in Computer Science @UPenn SEAS with a
+                concentration in Artificial Intelligence.
               </Text>
             </H1>
             <Flex
@@ -132,7 +133,7 @@ const IndexPage = (props: Props) => {
               </a>
             </Flex>
           </Flex>
-        {/* </Grid.Item>
+          {/* </Grid.Item>
         <Grid.Item as="section" col={2}>
           <Flex alignItems="start" direction="column" gap="5">
             <H2>Newsletter</H2>
@@ -249,7 +250,9 @@ const IndexPage = (props: Props) => {
         <Grid.Item col={2} as="section">
           <Flex alignItems="start" direction="column" gap="5">
             <H2>Articles </H2>
-            <H3>(Migrating to Node, more articles will be brought back up soon)</H3>
+            <H3>
+              (Migrating to Node, more articles will be brought back up soon)
+            </H3>
             <Grid
               as="ul"
               css={{

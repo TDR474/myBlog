@@ -115,14 +115,17 @@ async function processMdxFile(filePath) {
       mdxOptions: {
         remarkPlugins: [remarkMath],
         rehypePlugins: [
-          [rehypeKatexSvelte, {
-            macros: {
-              "\\CC": "\\mathbb{C}",
-              "\\vec": "\\mathbf",
-              "\\mathbf": "\\mathbf",
-              "\\X": "\\mathrm{X}_{#1,#2}",
+          [
+            rehypeKatexSvelte,
+            {
+              macros: {
+                '\\CC': '\\mathbb{C}',
+                '\\vec': '\\mathbf',
+                '\\mathbf': '\\mathbf',
+                '\\X': '\\mathrm{X}_{#1,#2}',
+              },
             },
-          }],
+          ],
         ],
       },
     });

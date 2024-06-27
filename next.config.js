@@ -5,15 +5,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const withMDX = require('@next/mdx')({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [
-      async () => (await import('remark-math')).default,
-    ],
-    rehypePlugins: [
-      async () => (await import('rehype-katex')).default,
-    ],
+    remarkPlugins: [async () => (await import('remark-math')).default],
+    rehypePlugins: [async () => (await import('rehype-katex')).default],
   },
 });
-
 
 module.exports = withBundleAnalyzer(
   withMDX({

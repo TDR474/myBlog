@@ -27,7 +27,6 @@ import {
   Switch,
   Radio,
   Details,
-  
 } from '@maximeheckel/design-system';
 import Logo from '@core/components/Logo';
 import Glow from '@core/components/Glow';
@@ -35,7 +34,7 @@ import CodeBlock from '@core/components/Code/CodeBlock';
 import Seo from '@core/components/Seo';
 import Tweet from '@core/components/Tweet';
 import Layout from '@core/layout';
-// import LatexRenderer from '@core/components/LatexRenderer'; 
+// import LatexRenderer from '@core/components/LatexRenderer';
 import { getTweets } from 'lib/tweets';
 import dynamic from 'next/dynamic';
 import React from 'react';

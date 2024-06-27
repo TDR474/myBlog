@@ -91,7 +91,6 @@ const Signature = ({ title, url }: { title: string; url: string }) => {
         }}
         gap="5"
       >
-
         <Box>
           <Text as="p" variant="primary">
             Have a wonderful day.
@@ -102,7 +101,6 @@ const Signature = ({ title, url }: { title: string; url: string }) => {
             </Text>
           </Flex>
         </Box>
-
       </Flex>
       {/* <NewsletterForm /> */}
     </StyledSection>

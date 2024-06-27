@@ -19,7 +19,10 @@ const App = ({ Component, pageProps }: AppProps) => {
     <ThemeProvider>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <meta name="google-site-verification" content="f11boUvGIzjbYwQVuaCieN-J4vcA_BxJuO_S54WPf-U" />
+        <meta
+          name="google-site-verification"
+          content="f11boUvGIzjbYwQVuaCieN-J4vcA_BxJuO_S54WPf-U"
+        />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"

@@ -11,13 +11,21 @@ const MathDisplay = styled.div`
 const components: MDXProviderComponentsProp = {
   div: (props) => {
     if (props.className?.includes('math-display')) {
-      return <MathDisplay><TeX block math={props.children as string} /></MathDisplay>;
+      return (
+        <MathDisplay>
+          <TeX block math={props.children as string} />
+        </MathDisplay>
+      );
     }
     return <div {...props} />;
   },
   span: (props) => {
     if (props.className?.includes('math-inline')) {
-      return <span className="math-inline"><TeX math={props.children as string} /></span>;
+      return (
+        <span className="math-inline">
+          <TeX math={props.children as string} />
+        </span>
+      );
     }
     return <span {...props} />;
   },

@@ -7,7 +7,7 @@ import { FrontMatterPost, Post } from 'types/post';
 import { remarkSectionize } from './remark-sectionize-fork';
 import { remarkFigure } from './remark-figure';
 import { remarkMeta } from './remark-meta';
-import rehypeKatexSvelte from "rehype-katex-svelte";
+import rehypeKatexSvelte from 'rehype-katex-svelte';
 import remarkMath from 'remark-math';
 
 const root = process.cwd();

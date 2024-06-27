@@ -19,8 +19,7 @@ module.exports = {
   ],
   title: "Frank Zhu's Blog",
   titleAlt: 'Frank Zhu | Blog',
-  description:
-    "Welcome to my blog",
+  description: 'Welcome to my blog',
   url: 'https://blog.maximeheckel.com', // Site domain without trailing slash
   siteUrl: 'https://blog.maximeheckel.com/', // url + pathPrefix
   siteLanguage: 'en', // Language Tag on <html> element

@@ -27,20 +27,12 @@ const FooterContent = styled(Flex, {
 const Footer = () => (
   <FooterBlock data-testid="footer">
     <Grid gapX={4} templateColumns={templateColumnsMedium}>
-        <FooterContent alignItems="center" justifyContent="space-between">
-          <Text
-            as="p"
-            css={{ margin: 0 }}
-            size="1"
-            variant="primary"
-            weight="3"
-          >
-            © {new Date().getFullYear()} Frank Zhu ——{' '}
-            <EM size="1">New York</EM>
-          </Text>
-          {/* <Logo alt="Maxime Heckel's logo" size={35} /> */}
-        </FooterContent>
-
+      <FooterContent alignItems="center" justifyContent="space-between">
+        <Text as="p" css={{ margin: 0 }} size="1" variant="primary" weight="3">
+          © {new Date().getFullYear()} Frank Zhu —— <EM size="1">New York</EM>
+        </Text>
+        {/* <Logo alt="Maxime Heckel's logo" size={35} /> */}
+      </FooterContent>
     </Grid>
   </FooterBlock>
 );

@@ -1,6 +1,6 @@
 ---
 title: 'Basics on Graphs'
-subtitle: Part of the introduction to Algorithms Series 
+subtitle: Part of the introduction to Algorithms Series
 date: '2024-02-31T08:00:00.000Z'
 updated: '2023-11-11T08:00:00.000Z'
 categories: []
@@ -10,7 +10,6 @@ featured: true
 colorFeatured: 'linear-gradient(90deg, #6D9EE7 12.5%, #ADBFE3 26.04%, #F0C9B4 39.06%, #F4BA6E 56.96%, #FFC178 70.83%, #E58334 92.71%);'
 ---
 
-
 In graph theory, a graph consists of nodes (also called vertices) and edges that connect pairs of nodes. Imagine a social network where each person is a node, and each friendship is an edge connecting two nodes. This simple yet powerful concept allows us to visualize and analyze complex relationships and networks.
 
 Graphs are essential in computer science and many other fields because they can represent various real-world systems. For instance, graphs can model networks of communication, data organization, computational devices, and even social interactions.
@@ -18,35 +17,40 @@ Graphs are essential in computer science and many other fields because they can 
 Understanding the properties and algorithms related to graphs can help solve problems like finding the shortest path in a network, robotics naviagtion, and more.
 
 ## Basic Concepts on Graphs
-- Think of a graph as a collection of nodes connected by edges. 
+
+- Think of a graph as a collection of nodes connected by edges.
 - **Terminology**:
-  - <ins>**Directed Edges vs Undirected**</ins>
-    - Directed edges mean you can traverse in one direction, while undirected edges let you move in both directions.
-      - For example, binary trees are directed graphs because you can't move back to a node's parent, only its children.
-  - <ins>**Connected Component**</ins>:
-    - This is a group of nodes connected by edges.
-  - <ins>**Indegree**</ins>:
-    - This is the number of edges that can be used to **reach** the node.
-      - In graphs, nodes with an **in-degree of zero** are the **smallest set of nodes from which all other nodes can be reached**.
-         - For instance, check out [1557. Minimum Number of Vertices to Reach All Nodes](https://leetcode.com/problems/minimum-number-of-vertices-to-reach-all-nodes/)
-      - In binary trees, all nodes except the root have an indegree of 1 (due to their parent).
-      - In DAGs (Directed Acyclic Graphs), a node with an **indegree of zero is called a <ins>source</ins>**.
-  - <ins>**Outdegree**</ins>:
-    - This is the number of edges that can be used to **leave** the node.
-      - In binary trees, an outdegree of 0 means it's a leaf.
-      - In binary trees, all nodes have an outdegree of 0, 1, or 2.
-      - In DAGs, an **outdegree of zero is called a <ins>sink</ins>**.
-        - Visiting from sink components will yield all strongly connected graphs (using Kosaraju's algorithm).
+  - <ins>**Directed Edges vs Undirected**</ins>- Directed edges mean you can traverse
+    in one direction, while undirected edges let you move in both directions. - For
+    example, binary trees are directed graphs because you can't move back to a node's
+    parent, only its children.
+  - <ins>**Connected Component**</ins>: - This is a group of nodes connected by
+    edges.
+  - <ins>**Indegree**</ins>: - This is the number of edges that can be used to
+    **reach** the node. - In graphs, nodes with an **in-degree of zero** are the
+    **smallest set of nodes from which all other nodes can be reached**. - For
+    instance, check out [1557. Minimum Number of Vertices to Reach All
+    Nodes](https://leetcode.com/problems/minimum-number-of-vertices-to-reach-all-nodes/)
+    - In binary trees, all nodes except the root have an indegree of 1 (due to
+    their parent). - In DAGs (Directed Acyclic Graphs), a node with an
+    **indegree of zero is called a <ins>source</ins>**.
+  - <ins>**Outdegree**</ins>: - This is the number of edges that can be used to
+    **leave** the node. - In binary trees, an outdegree of 0 means it's a leaf.
+    - In binary trees, all nodes have an outdegree of 0, 1, or 2. - In DAGs, an
+    **outdegree of zero is called a <ins>sink</ins>**. - Visiting from sink components
+    will yield all strongly connected graphs (using Kosaraju's algorithm).
   - <ins>**Neighbors**</ins>: Nodes that are connected by an edge.
-  - <ins>**Cyclic**</ins>:
-    - When you have a path in the edges that **leads to visiting the same nodes infinitely**.
-      - By definition, binary trees are acyclic.
+  - <ins>**Cyclic**</ins>: - When you have a path in the edges that **leads to
+    visiting the same nodes infinitely**. - By definition, binary trees are
+    acyclic.
 
 ## Input Formats:
+
 ### 1. Array Of Edges
-  - **Needs Preprocessing!** We can usually just use a hashmap, like this: `graph = {node: [neighbors]}`, since it's faster to find neighbors. On platforms like Leetcode, input is often given in a 2D array format.
-  - Each element of the array will be in the form `[x, y]`, which indicates that there is an edge between `x` and `y` (these edges can be either directed or undirected).
-  - Example: `edges = [[0, 1], [1, 2], [2, 0], [2, 3]]`.
+
+- **Needs Preprocessing!** We can usually just use a hashmap, like this: `graph = {node: [neighbors]}`, since it's faster to find neighbors. On platforms like Leetcode, input is often given in a 2D array format.
+- Each element of the array will be in the form `[x, y]`, which indicates that there is an edge between `x` and `y` (these edges can be either directed or undirected).
+- Example: `edges = [[0, 1], [1, 2], [2, 0], [2, 3]]`.
 
 ```jsx {9-10} title=Basic definition of a React Three Fiber mesh
 
@@ -63,15 +67,18 @@ def build_graph(edges):
 ```
 
 ### 2. Adjacency List
+
 - **Most convenient format!**
 - In an adjacency list, nodes are numbered from `0` to `n - 1`. The input will be a 2D integer array, let's call it `graph`. `graph[i]` will be a list of all the outgoing edges from the `i-th` node.
 - Example: `graph = [[1], [2], [0, 3], []]`
 
 ### 3. Adjacency Matrix
+
 - Can preprocess (if `n` is large) or not. The time complexity in both cases would be `O(n^2)`, since you have `n` nodes and have to traverse each `n` times.
 - Nodes will be numbered from `0` to `n - 1`. You'll be given a 2D matrix of size `n x n`, let's call it `graph`. If `graph[i][j] == 1`, that means there's an outgoing edge from node `i` to node `j`.
 
 ## Graphs vs Trees
+
 - Graphs don't always have an obvious start point, but trees have a `root`.
 - Traversal:
   - In graphs, you need a `for loop` to iterate over the neighbors of the current node since a node could have any number of neighbors.
@@ -80,5 +87,5 @@ def build_graph(edges):
   - Since trees are directed acyclic graphs, they don't have cycles.
   - However, graphs do!
   - Before visiting a node, first check if the node is in `seen`.
-  - If it isn't, add it to `seen` before visiting it. 
+  - If it isn't, add it to `seen` before visiting it.
   - This ensures you only visit each node once in `O(1)` time because adding and checking for existence in a set takes constant time.

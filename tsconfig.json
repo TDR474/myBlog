@@ -3,16 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@core/*": [
-        "core/*"
-      ]
+      "@core/*": ["core/*"]
     },
     "target": "esnext",
     "module": "esnext",
-    "lib": [
-      "dom",
-      "es2022"
-    ],
+    "lib": ["dom", "es2022"],
     "jsx": "preserve",
     "sourceMap": false,
     "strict": true,
@@ -31,11 +26,6 @@
     "isolatedModules": true,
     "incremental": true
   },
-  "include": [
-    "./**/*"
-  ],
-  "exclude": [
-    "./**/*.spec.tsx",
-    "node_modules"
-  ]
+  "include": ["./**/*"],
+  "exclude": ["./**/*.spec.tsx", "node_modules"]
 }
