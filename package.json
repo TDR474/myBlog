@@ -19,7 +19,7 @@
     "generate:rss": "node ./scripts/generate-rss",
     "generate:sitemap": "node ./scripts/generate-sitemap",
     "link-ds": "rm -rf .next && pnpm link --global @maximeheckel/design-system",
-    "lint": "eslint --ext=jsx,ts,tsx .",
+    "lint": "eslint --ext=py .",
     "prebuild": "pnpm generate:rss && pnpm generate:sitemap",
     "start": "next start",
     "test": "is-ci \"test:coverage\" \"test:watch\"",

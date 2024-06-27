@@ -1,26 +1,43 @@
-// components/MdxLayout.tsx
 import React from 'react';
-import TeX from '@matejmazur/react-katex';
 import { MDXProvider } from '@mdx-js/react';
-import 'katex/dist/katex.min.css';
+import TeX from '@matejmazur/react-katex';
+import styled from 'styled-components';
+
+const MathDisplay = styled.div`
+  margin-bottom: -10px; /* Adjust this value as needed */
+`;
 
 const components = {
-  div: (props: any) => {
+  div: (props) => {
     if (props.className?.includes('math-display')) {
-      return <TeX block math={props.children as string} />;
+      return (
+        <MathDisplay>
+          <TeX block math={props.children as string} />
+        </MathDisplay>
+      );
     }
     return <div {...props} />;
   },
-  span: (props: any) => {
+  span: (props) => {
     if (props.className?.includes('math-inline')) {
-      return <TeX math={props.children as string} />;
+      return (
+        <span className="math-inline">
+          <TeX math={props.children as string} />
+        </span>
+      );
     }
     return <span {...props} />;
   },
 };
 
-const Layout: React.FC = ({ children }) => {
-  return <MDXProvider components={components}>{children}</MDXProvider>;
+const MdxLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div>
+      <MDXProvider components={components}>{children}</MDXProvider>
+    </div>
+  );
 };
 
-export default Layout;
+MdxLayout.displayName = 'MdxLayout';
+
+export default MdxLayout;

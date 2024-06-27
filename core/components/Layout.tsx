@@ -1,4 +1,3 @@
-// components/Layout.tsx
 import React, { useEffect, useState } from 'react';
 import TeX from '@matejmazur/react-katex';
 import { MDXProvider, MDXProviderComponentsProp } from '@mdx-js/react';
@@ -46,5 +45,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return <MDXProvider components={components}>{children}</MDXProvider>;
 };
+
+Layout.displayName = 'Layout';
 
 export default Layout;
