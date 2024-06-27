@@ -1,0 +1,44 @@
+::selection {
+  background-color: var(--emphasis);
+  color: var(--accent);
+}
+
+html {
+  font: 100%/1.2888 var(--font-display);
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  word-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  margin: 0;
+}
+.math-inline {
+  display: inline-block; /* Ensure inline math stays inline */
+}
+/* [hidden],
+[aria-hidden='true'], */
+.hidden-layout {
+  display: none;
+}
+/* 
+[aria-hidden='false'] {
+  display: block;
+} */
+
+/* TODO Find a way to remove the following */
+/* Patch gif wrapped in figure tag */
+
+figure {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* END Patch gif wrapped in figure tag */

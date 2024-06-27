@@ -1,0 +1,52 @@
+---
+title: 'Naive Bayes and Logistic Regression: A Deep Dive (WIP)'
+subtitle:
+date: '2021-04-15T08:00:00.000Z'
+updated: '2024-06-04T08:00:00.000Z'
+categories: []
+slug: naive-bayes-logistic
+type: 'blogPost'
+featured: false
+---
+
+
+import Layout from '../components/Layout';
+
+export default Layout;
+
+For Naive Bayes, we are assuming each feature is independent of each other in a common cause Bayes Net configuration, i.e., given a sample of \(m\) words and \(n\) features:
+
+<div className="math-inline">
+{`\\begin{align}
+P(Y, F) = \\underbrace{P(Y)}_{\\text{prior}} \\prod_{i=1}^n \\underbrace{P(f_i|Y)}_{\\text{likelihood}}; \\quad \\forall f_i \\in F, i \\neq j, f_i \\perp f_j | Y;
+\\end{align}`}
+</div>
+
+where <span className="math-inline">{`\\begin{align}F = \\{f_{len}, f_{freq}, f_{syl}\\}\\begin{align}`}</span> and <span className="math-inline">{`Y \\in \\{1, 0\\}`}</span>. Each <span className="math-inline">{`f_i`}</span> is an <span className="math-inline">{`m \\times 1`}</span> feature vector where <span className="math-inline">{`m`}</span> is the number of feature assignments; thus <span className="math-inline">{`F`}</span> is an <span className="math-inline">{`m \\times n`}</span> matrix. <span className="math-inline">{`Y`}</span> is an <span className="math-inline">{`m \\times 1`}</span> vector of class labels.
+
+Note our parameter <span className="math-inline">{`\\theta_{NB} = \\{\\{P(Y_j)\\}, \\{P(f_i|Y_j)\\}_{i=1}^m\\}^{|Y|}_{j=0}`}</span> (the prior and likelihoods) are calculated from the training data using maximum likelihood/relative frequencies.
+
+<div className="math-display">
+{`\\begin{align}
+P(Y_j) = \\frac{\\text{count}(Y_j)}{\\text{count}(Y)} \\
+P(f_i|Y_j) = \\frac{\\text{count}(f_i, Y_j)}{\\Sigma_i \\text{count}(f_i, Y)}
+\\end{align}`}
+</div>
+
+Inference for our Naive Bayes is done by first computing the posterior from the calculated joint:
+
+<div className="math-display">
+{`\\begin{align}
+P(Y|F) = \\frac{P(Y, F)}{P(F)}, \\quad P(F) = \\sum_{i=1}^{|Y|} P(Y_i, F)
+\\end{align}`}
+</div>
+
+Then our prediction <span className="math-inline">{`Y_{NB}`}</span> for our words is found by maximizing the posterior (note <span className="math-inline">{`P(F)`}</span> is a normalizing constant), or maximizing the joint distribution:
+
+<div className="math-display">
+{`\\begin{align} 
+Y_{NB} &= \\operatorname*{arg\\,max}_Y P(Y | F) \\\\ 
+&= \\operatorname*{arg\\,max}_Y P(Y, F)\\\\ 
+&= \\operatorname*{arg\\,max}_Y P(Y) \\prod_{i=1}^n P(f_i | Y) 
+\\end{align}`}
+</div>

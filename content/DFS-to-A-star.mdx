@@ -1,0 +1,286 @@
+---
+title: 'A Primer on Search Problems: From DFS to A* Search'
+subtitle: From DFS, BFS, IDDFS, UCS, Greedy, to A* - a comprehensive journy in the world of search.
+date: '2023-07-02T08:00:00.000Z'
+updated: '2024-05-04T08:00:00.000Z'
+categories: []
+slug: DFS-to-A-star
+type: 'blogPost'
+featured: true
+colorFeatured: 'linear-gradient(225deg, #BDB4F1 0%, #D8B9E3 56.25%, #F1B1BB 100%)'
+---
+<Callout label="Before you start" variant="info">
+If you'd like to see these algorithms in action, check out my favoriate class at Penn, [CIS 521 Artificial Intelligence](https://artificial-intelligence-class.org/)!
+</Callout>
+## Introduction
+
+Whether you're navigating a social network, finding the shortest path in a city, or solving complex puzzles, search algorithms are crucial. We'll explore various search algorithms, from Depth-First Search (DFS) to A* Search, breaking down their use cases and how they work. By the end, you'll have a solid understanding of these algorithms and how to apply them to solve real-world problems.
+
+## Formulating a Search Problem
+
+To tackle a search problem, we need to define a few key components:
+
+1. **State**: The initial state where the agent starts.
+2. **Actions**: Possible actions the agent can take and their outcomes.
+3. **Performance Measure**: Criteria to determine if the agent has reached its goal.
+4. **Goal**: The desired state the agent aims to achieve.
+
+A solution to a search problem is a sequence of actions that form a path to the goal state.
+
+### Dimensions for Evaluation
+
+To evaluate search algorithms, we consider:
+- **Completeness**: Does the algorithm always find a solution if one exists?
+- **Optimality**: Does it find the least cost solution?
+- **Time Complexity**: How many nodes are generated in the worst case?
+- **Space Complexity**: How many nodes are stored in memory at the same time in the worst case?
+
+
+
+<Callout label="Why the new variables?" variant="info">
+In artificial intelligence, search problems often involve exploring vast or even infinite state spaces. Therefore, it's more practical to describe the complexity in terms of $b$, $d$ and $m$ rather than the total number of nodes ($n$), which can be impractically large or undefined.
+
+</Callout>
+#### Complexity Variables
+- **b**: Maximum branching factor of the search tree (number of children per node).
+- **d**: Depth of the shallowest goal node (distance from the start node in terms of edge traversals).
+- **m**: Maximum length of any path in the state space.
+
+---
+
+## Uninformed Search
+
+Uninformed or blind search strategies rely only on the information available
+ in the problem definition. They treat all non-goal nodes in the frontier equally and differ in their tree expansion order, implemented by different queue structures (LIFO, FIFO, priority).
+
+## 1. Depth-First Search (DFS)
+
+**Depth-First Search (DFS) **is a fundamental graph traversal algorithm used to explore nodes and edges of a graph. Starting from a root node, DFS explores as far as possible along each branch before backtracking, making it suitable for searching tree structures and discovering connectivity in graphs.
+
+### DFS Code
+
+```python
+def dfs(start, graph):
+    stack = [start]
+    reached = set()
+    reached.add(start)
+
+    while stack:
+        current = stack.pop()
+        for neighbor in graph.neighbors(current):
+            if neighbor not in reached:
+                stack.append(neighbor)
+                reached.add(neighbor)
+```
+
+### DFS Complexity
+
+- **Complete?** No - DFS fails with infinite-depth spaces or spaces with loops. To avoid getting stuck, check for repeated states.
+- **Time Complexity?** $O(b^m)$ - Can be very bad if $m$ (maximum depth) is much larger than $d$ (depth of the solution).
+- **Space Complexity?** $O(b \cdot m)$ - Requires linear space for each node's siblings and children.
+- **Optimal?** No - DFS may find a suboptimal solution if the optimal goal is at a lower depth than the path DFS takes.
+
+### DFS Use Case (For you Leetcode People!)
+
+1. **Finding the Number of Connected Components (Undirected Graph)**
+   - Examples: [547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/), [200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
+
+2. **Reordering Routes**
+   - Example: [1466. Reorder Routes to Make All Paths Lead to the City Zero](https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/)
+
+3. **Finding Strongly Connected Components in Directed Graphs**
+   - Kosaraju's Algorithm: Perform DFS on the original graph, reverse the graph, and perform DFS on the reversed graph in the order of decreasing finish times. Each DFS run reveals a strongly connected component.
+
+## 2. Breadth-First Search (BFS)
+
+Breadth-First Search (BFS) explores nodes level by level, making it ideal for finding the shortest path in an unweighted graph. Starting from the root node, BFS expands all its neighbors before moving on to the next level.
+
+### BFS Code
+
+```javascript
+from queue import Queue
+
+def bfs(start, graph):
+    frontier = Queue()
+    frontier.put(start)
+    reached = set()
+    reached.add(start)
+
+    while not frontier.empty():
+        current = frontier.get()
+        for neighbor in graph.neighbors(current):
+            if neighbor not in reached:
+                frontier.put(neighbor)
+                reached.add(neighbor)
+```
+
+### BFS Complexity
+
+- **Complete?** Yes, if the branching factor $b$ is finite.
+- **Time Complexity?** $O(b^d)$
+- **Space Complexity?** $O(b^d)$
+- **Optimal?** Yes, if all step costs are equal.
+
+### BFS Use Case
+
+1. **Shortest Path in Unweighted Graphs**
+   - Example: Finding the shortest path in a maze or unweighted network.
+
+2. **Finding All Nodes Within a Certain Distance**
+   - Example: Social network analysis to find all friends within a certain number of connections.
+
+## 3. Iterative Deepening Depth-First Search (IDDFS)
+
+
+**Iterative Deepening Depth-First Search (IDDFS) **combines the space efficiency of DFS with the completeness of BFS. It performs DFS with _increasing_ _depth_ _limits_ until a solution is found.
+
+### IDDFS Code
+
+```javascript
+def iddfs(start, goal, graph):
+    def dls(node, depth):
+        if depth == 0 and node == goal:
+            return [node]
+        if depth > 0:
+            for neighbor in graph.neighbors(node):
+                path = dls(neighbor, depth - 1)
+                if path:
+                    return [node] + path
+        return None
+
+    depth = 0
+    while True:
+        path = dls(start, depth)
+        if path:
+            return path
+        depth += 1
+```
+
+### IDDFS Complexity
+
+- **Complete?** Yes, if no infinite paths.
+- **Time Complexity?** $O(b^d)$
+- **Space Complexity?** $O(b \cdot d)$
+- **Optimal?** Yes, if all step costs are equal.
+
+---
+
+## Informed Search
+Informed search algorithms use additional information (**heuristics**) to guide the search process more efficiently towards the goal. By incorporating heuristics, these algorithms can significantly reduce the search space and find optimal solutions more quickly than uninformed methods. Key examples include Dijkstra's Algorithm, Greedy Best-First Search, and A* Search.
+## 1. Uniform Cost Search (Dijkstra's Algorithm)
+
+
+Dijkstra's algorithm is used for finding the shortest paths between nodes in a weighted graph. It expands the **least-cost node first**, making it optimal for graphs with varying edge weights.
+
+### Dijkstra's Code
+
+```javascript
+from queue import PriorityQueue
+
+def dijkstra(start, goal, graph):
+    frontier = PriorityQueue()
+    frontier.put((0, start))
+    came_from = {}
+    cost_so_far = {}
+    came_from[start] = None
+    cost_so_far[start] = 0
+
+    while not frontier.empty():
+        current_priority, current = frontier.get()
+
+        if current == goal:
+            break
+
+        for next in graph.neighbors(current):
+            new_cost = cost_so_far[current] + graph.cost(current, next)
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                priority = new_cost
+                frontier.put((priority, next))
+                came_from[next] = current
+```
+
+### Dijkstra's Complexity
+
+- **Complete?** Yes.
+- **Time Complexity?** $O((V + E) \log V)$
+- **Space Complexity?** $O(V)$
+- **Optimal?** Yes, for graphs with non-negative weights.
+
+## 2. Greedy Best-First Search
+
+### Greedy Best-First Introduction
+
+Greedy Best-First Search uses **heuristics** to guide its search, prioritizing nodes that _appear_ closest to the goal. It is faster than other methods but may not always find the optimal path.
+
+### Greedy Best-First Code
+
+```javascript
+from queue import PriorityQueue
+
+def greedy_best_first_search(start, goal, graph, heuristic):
+    frontier = PriorityQueue()
+    frontier.put((0, start))
+    came_from = {}
+    came_from[start] = None
+
+    while not frontier.empty():
+        current_priority, current = frontier.get()
+
+        if current == goal:
+            break
+
+        for next in graph.neighbors(current):
+            if next not in came_from:
+                priority = heuristic(goal, next)
+                frontier.put((priority, next))
+                came_from[next] = current
+```
+
+### Greedy Best-First Complexity
+
+- **Complete?** No, unless a 'seen' set is used.
+- **Time Complexity?** $O(b^m)$
+- **Space Complexity?** $O(b^m)$
+- **Optimal?
+
+** No, it may not find the shortest path.
+
+## 3. A* Search
+
+A* search **combines the strengths of Dijkstra's algorithm and Greedy Best-First Search** by using both the cost so far ($g(n)$) and a heuristic ($h(n)$).
+
+### A* Code
+
+```python
+from queue import PriorityQueue
+
+def a_star_search(start, goal, graph, heuristic):
+    frontier = PriorityQueue()
+    frontier.put((0, start))
+    came_from = {}
+    cost_so_far = {}
+    came_from[start] = None
+    cost_so_far[start] = 0
+
+    while not frontier.empty():
+        current_priority, current = frontier.get()
+
+        if current == goal:
+            break
+
+        for next in graph.neighbors(current):
+            new_cost = cost_so_far[current] + graph.cost(current, next)
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                priority = new_cost + heuristic(goal, next)
+                frontier.put((priority, next))
+                came_from[next] = current
+```
+
+### A* Complexity
+
+- **Complete?** Yes, if the heuristic is admissible (never overestimates the true cost).
+- **Time Complexity?** $O(b^d)$
+- **Space Complexity?** $O(b^d)$
+- **Optimal?** Yes, if the heuristic is admissible.

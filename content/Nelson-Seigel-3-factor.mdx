@@ -1,0 +1,238 @@
+---
+title: 'Nelson-Seigel 3-factor Model & Forecasting'
+subtitle: Ready to forecast some yields? Nelson-Seigel is here to help! No stochastic calculus required.
+date: '2023-10-31T08:00:00.000Z'
+updated: '2023-11-11T08:00:00.000Z'
+categories: []
+slug: Nelson-Seigel-3-factor
+type: 'blogPost'
+featured: true
+colorFeatured: 'linear-gradient(267deg, #FAD2A4 10.37%, #ECD5ED 58.94%, #92A6E9 98.35%);'
+---
+
+<Callout label="Before you start" variant="info">
+This note is for GA Financial Econometrics students. You can find the R markdown from my annoucemnts in BrightSpace. You can interact with the 
+Yield Curve Surface [here](https://tdr474.github.io/Financial-Econometrics-HW2.html).
+</Callout>
+
+In class, we discussed the [Nelson-Seigel 3-Factor model](http://www.ssc.upenn.edu/~fdiebold/papers/paper60/djl.pdf) of the yield curve. This page estimates the model using daily data from 1/02/2000 
+to 10/31/2023 for the following maturities of [US Treasuries](https://fred.stlouisfed.org/): 3 months, 6 months, 1 year, 2 years, 3 years, 5 years, 10 years, 20 years, and 30 years. The results are then used to forecast the yield curve for November 2023 through an AR(1) model.
+
+## 1. Data Fetching & Pre-processing
+
+We fetch all the necessary data into a list of lists indexed by maturity dates, then combine into a final processed dataframe.
+
+```javascript
+library('quantmod')
+library(forecast)
+library(dplyr)
+library(lubridate)
+library(YieldCurve)
+library(xts)
+library(plotly)
+
+# query the data
+maturities <- c("DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS3", "DGS5", "DGS10", "DGS20", "DGS30")
+start <- as.Date('2000-01-02')
+end <- as.Date('2023-10-31')
+
+treasuries <- list()
+
+for (tick in maturities){
+  # call data
+  getSymbols(tick, src = 'FRED', from = start, to = end)
+  treasuries[[tick]] <- get(tick) # R lists can be indexed by name
+}
+# combine the indexed list to a df
+combined_data <- do.call(merge, c(treasuries, all = TRUE))
+print(head(combined_data))
+```
+
+## 2.1 Nelson-Siegel Model
+
+Nelson and Siegel fit the yield at any maturity as follows:
+
+{/* 
+<Image
+  border={false}
+  src="https://asset.cloudinary.com/dojea9dtp/cc2880d2e80de2c58d0833af38132903"
+  alt="Examples of dispersion effects by the Vercel Team, Davo Galavotti, and many other artists"
+  width={700}
+  height={447}
+/>  */}
+<img
+  src="/img/NS.png"
+  alt="Examples of dispersion effects by the Vercel Team, Davo Galavotti, and many other artists"
+  style={{ display: 'block', margin: '0 auto', transform: 'scale(0.7)' }}
+/>
+And we can use $R$'s $YieldCurve$ package to estimate the parameters:
+
+
+```js title = hi
+# NS yield as a function of factors and maturities
+# to be used later
+calculate_yield <- function(beta_0, beta_1, beta_2, lambda, maturity) {
+  term1 <- (1 - exp(-lambda * maturity)) / (lambda * maturity)
+  term2 <- term1 - exp(-lambda * maturity)
+  yield <- beta_0 + (beta_1 * term1) + (beta_2 * term2)
+  return(yield)
+}
+
+# More cleaning & convert xts to data frame
+# make index into a column
+combined_data_df <- data.frame(DATE = index(combined_data), coredata(combined_data))
+combined_data_df$DATE <- as.Date(combined_data_df$DATE)
+
+# prepare data for YieldCurve package
+yield <- combined_data_df # rename for easier reference
+yield$DATE <- as.Date(yield$DATE, format = '%Y-%m-%d')
+curve <- xts(yield[, -1], order.by = yield$DATE)
+curve_clean <- na.omit(curve) # drop NAs, 5962 obs remaining
+maturity.Fed <- c(3/12, 0.5, 1,2,3,5,10, 20, 30 )
+
+# Nielson-Siegel
+NSParameters <- Nelson.Siegel( rate=curve_clean, maturity=maturity.Fed)
+y <- NSrates(NSParameters[5962,], maturity.Fed)
+
+## plotting
+plot(maturity.Fed, curve_clean[5962,], main="Fitting Nelson-Siegel yield curve (23/10/31)", xlab=c("Maturity (months)"), ylab=c('Market Yield'), type="o")
+lines(maturity.Fed,y, col=2)
+legend("topleft", legend=c("observed yield curve","fitted yield curve"),
+col=c(1,2),lty=1)
+grid()
+```
+<img
+  src="/img/NS2D.png"
+  alt="NS 2D"
+  style={{ display: 'block', margin: '0 auto', transform: 'scale(1)' }}
+/>
+
+## 2.2 Nelson-Siegel Fitted & Actual (3D surface)
+
+```javascript
+# To see our result in 3D, we apply the calculate_yield function to each row in NSParameters
+fitted_yield_matrix <- t(apply(NSParameters, 1, function(params) {
+  sapply(maturity.Fed, calculate_yield, beta_0 = params['beta_0'], beta_1 = params['beta_1'], beta_2 = params['beta_2'], lambda = params['lambda'])
+}))
+
+# More cleaning
+actual_yield_matrix <- as.matrix(curve_clean)
+
+# Plot the actual yields surface
+p <- plot_ly(x = ~rev(maturity.Fed), y = ~yield$DATE, z = ~actual_yield_matrix, type = 'surface',
+             colorscale = 'Viridis',
+             name = 'Actual Yields') %>%
+  
+      add_surface(x = ~rev(maturity.Fed), y = ~yield$DATE, z = ~fitted_yield_matrix,
+                  colorscale = list(c(0,1),c("rgb(255,112,184)","rgb(128,0,64)")),
+                  name = 'Fitted Yields') %>%
+      layout(title = "Yield Surface Over Time and Maturity",
+             scene = list(xaxis = list(title = "Maturity (Months)"),
+                          yaxis = list(title = "Date"),
+                          zaxis = list(title = "Yield (%)")),
+             width = '70%')
+
+# Render the plot
+p
+```
+<img
+  src="/img/NS3D2.png"
+  alt="NS 3D"
+  style={{ display: 'block', margin: '0 auto', transform: 'scale(1)' }}
+/>
+
+## 3.1 Forecasting
+
+Following Diebold & Li (2006), we forecast the yield curve with the following specifications:
+<img
+  src="/img/NSForecast.png"
+  alt="NS 2D"
+  style={{ display: 'block', margin: '0 auto', transform: 'scale(0.7)' }}
+/>
+
+
+Where we forecast the NS factors ($\beta$s) as an $ARIMA(p, d, q)$ process to handle potential non-stationarity:
+
+```javascript
+# Extract the individual beta factors as separate time series
+beta_0_ts <- ts(NSParameters$beta_0, start = c(year(start(NSParameters)), month(start(NSParameters))), frequency = 12)
+beta_1_ts <- ts(NSParameters$beta_1, start = c(year(start(NSParameters)), month(start(NSParameters))), frequency = 12)
+beta_2_ts <- ts(NSParameters$beta_2, start = c(year(start(NSParameters)), month(start(NSParameters))), frequency = 12)
+
+# Fit AR(1) models to each of the factors
+arima_beta_0 <- auto.arima(beta_0_ts)
+arima_beta_1 <- auto.arima(beta_1_ts)
+arima_beta_2 <- auto.arima(beta_2_ts)
+
+# Number of days to forecast
+forecast_horizon <- length(seq(ymd("2023-11-01"), ymd("2023-11-30"), by = "days"))
+
+# Forecast the factors for the horizon
+forecast_beta_0 <- forecast(arima_beta_0, h = forecast_horizon)
+forecast_beta_1 <- forecast(arima_beta_1, h = forecast_horizon)
+forecast_beta_2 <- forecast(arima_beta_2, h = forecast_horizon)
+lambda <- mean(NSParameters$lambda)
+
+# For arima_beta_0
+non_seasonal_order_beta_0 <- arima_beta_0$arma[1:3]
+cat("Beta 1 ARIMA(p, d, q):", paste(non_seasonal_order_beta_0, collapse = ", "), "\n")
+
+# For arima_beta_1
+non_seasonal_order_beta_1 <- arima_beta_1$arma[1:
+
+3]
+cat("Beta 2 ARIMA(p, d, q):", paste(non_seasonal_order_beta_1, collapse = ", "), "\n")
+
+# For arima_beta_2
+non_seasonal_order_beta_2 <- arima_beta_2$arma[1:3]
+cat("Beta 3 ARIMA(p, d, q):", paste(non_seasonal_order_beta_2, collapse = ", "), "\n")
+```
+
+## 3.2 Forecasting the yield using the forecasted factors
+
+```javascript
+# Define the maturities for the yield curve
+maturity <- c(3/12, 0.5, 1,2,3,5,10, 20, 30 )
+
+# Initialize a matrix to hold the yield curve forecasts
+forecast_dates <- seq.Date(from = as.Date("2023-11-01"), to = as.Date("2023-11-30"), by = "day")
+yield_forecasts <- matrix(nrow = forecast_horizon, ncol = length(maturity))
+
+# Calculate the yield curve for each day in Nov
+for (i in 1:nrow(yield_forecasts)) {
+  for (j in 1:ncol(yield_forecasts)) {
+    yield_forecasts[i, j] <- calculate_yield(
+      beta_0 = forecast_beta_0$mean[i],
+      beta_1 = forecast_beta_1$mean[i],
+      beta_2 = forecast_beta_2$mean[i],
+      lambda = lambda,
+      maturity = maturity[j]
+    )
+  }
+}
+
+# Combine the forecasted yields with the dates
+forecast_df <- data.frame(date = forecast_dates, yield_forecasts)
+
+# Melt the data frame to a long format for easier plotting and analysis
+forecast_df_long <- reshape2::melt(forecast_df, id.vars = 'date', variable.name = 'maturity', value.name = 'yield')
+```
+
+```javascript
+library(plotly)
+yield_matrix <- as.matrix(forecast_df[,-1])  # Excluding the date column
+
+# Use plot_ly to create an interactive 3D plot
+plot_ly(z = ~yield_matrix, x = ~rev(forecast_df$date), y = ~maturities, type = "surface") %>%
+  layout(title = "Forecasted Yield Surface (November 2023)",
+         scene = list(xaxis = list(title = "Date"),
+                      yaxis = list(title = "Maturity (Months)"),
+                      zaxis = list(title = "Yield (%)")),
+         width = '70%')
+```
+
+<img
+  src="/img/NS3D.png"
+  alt="NS 3D"
+  style={{ display: 'block', margin: '0 auto', transform: 'scale(1)' }}
+/>
