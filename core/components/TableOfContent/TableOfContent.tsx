@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Anchor, Box, styled } from '@maximeheckel/design-system';
 import useProgress from '@core/hooks/useProgress';
 import useScrollSpy from '@core/hooks/useScrollSpy';

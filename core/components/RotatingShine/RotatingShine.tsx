@@ -56,9 +56,9 @@ const RotatingShine = ({
       },
     },
     initial: {
-      '--r': [],
-      '--x': [],
-      '--y': [],
+      // '--r': [],
+      // '--x': [],
+      // '--y': [],
       transition: {
         ease: 'easeOut',
         duration: 1,

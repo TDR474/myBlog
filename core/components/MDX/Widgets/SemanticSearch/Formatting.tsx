@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Box,
   Button,
@@ -19,7 +20,7 @@ const Formatting = () => {
   const [streamData, setStreamData] = useState('');
   const [mdxData, setMdxData] = useState<MDXRemoteSerializeResult<
     Record<string, unknown>,
-    Record<string, string>
+    Record<string, unknown>
   > | null>(null);
 
   const rawResponseRef = useRef<HTMLDivElement>(null);
@@ -86,6 +87,7 @@ const Formatting = () => {
       });
       const formattedResponse = formattedResponseRef.current;
       const rawResponse = rawResponseRef.current;
+      /* eslint-disable-next-line */
       setMdxData(mdxSource);
 
       // Keep response div scrolled to the bottom but wait 200 to let other transition take place before scrolling

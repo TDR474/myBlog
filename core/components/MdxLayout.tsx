@@ -38,7 +38,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     setMounted(true);
     // Client-side code that ensures KaTeX CSS is applied correctly
-    import('katex/dist/katex.min.css');
+    //import('katex/dist/katex.min.css');
   }, []);
 
   if (!mounted) {

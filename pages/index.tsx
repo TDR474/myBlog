@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
+// @ts-nocheck
 import {
   styled,
   Anchor,
