@@ -198,76 +198,19 @@ const AIPromptResultCard = forwardRef(
                   <Box>
                     <Text as="p">Dear reader,</Text>
                     <Text as="p" size="2">
-                      I built this AI powered mini-search engine to learn more
-                      about OpenAI and embeddings, try new UX patterns while
-                      also exploring new ways for my readers to interact with my
-                      content. This is an experimental feature.
+                      This is an experimental feature! My OpenAI API might be down while you are using it.
                     </Text>
 
                     <Text as="p" size="2">
                       Ask me anything about my blog posts, a topic, or projects
-                      by typing your question or selecting one of the examples
-                      below.
+                      by typing your question below.
                     </Text>
-                    <Text as="p" style={{ marginBottom: 0 }} size="2">
-                      I&apos;m using my own funds to power this feature, if you
-                      wish for me to push this further or simply appreciate the
-                      work I put into projects like this one you can support me
-                      by{' '}
-                      <Anchor
-                        href="https://www.buymeacoffee.com/maximeheckel"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        buying me a coffee
-                      </Anchor>{' '}
-                      (I really do love coffee ☕).
-                    </Text>
-                  </Box>
-                  <Flex wrap="wrap" gap="3">
-                    {SAMPLE_QUESTIONS.map((question) => (
-                      <Box
-                        as="button"
-                        css={{
-                          padding: 0,
-                          MozAppearance: 'none',
-                          WebkitAppearance: 'none',
-                          background: 'transparent',
-                          color: 'inherit',
-                          border: 'none',
-                          fontFamily: 'inherit',
-                        }}
-                        key={question}
-                        onClick={() => onQuestionSelect(question)}
-                      >
-                        <Pill css={{ cursor: 'pointer' }} variant="info">
-                          {question}
-                        </Pill>
-                      </Box>
-                    ))}
-                  </Flex>
-                  <Text as="p" size="2">
-                    Results are sadly not guaranteed to be 100% accurate but
-                    I&apos;ll work on improving the quality of the answers as I
-                    learn more about the underlying technologies. If you want to
-                    learn more about how I build it you can read my blog post
-                    titled{' '}
-                    <Link
-                      href="/posts/building-magical-ai-powered-semantic-search"
-                      legacyBehavior
-                      passHref
-                    >
-                      <Anchor>
-                        Building a magical AI-powered semantic search from
-                        scratch
-                      </Anchor>
-                    </Link>{' '}
-                    where I go through all the implementation details.
+
                     <br />
                     <br />
                     Have fun!
-                    <br />– Maxime
-                  </Text>
+                    <br />– Frank
+                  </Box>
                 </Flex>
               ) : null}
             </AnimatePresence>
@@ -320,20 +263,7 @@ const AIPromptResultCard = forwardRef(
                             />
                           </Box>
                         </Tooltip>
-                        <Tooltip content="Support my work: buy me a coffee!">
-                          <Anchor
-                            href="https://www.buymeacoffee.com/maximeheckel"
-                            rel="noopener noreferrer"
-                            target="_blank"
-                          >
-                            <Button
-                              aria-label="Support my work: buy me a coffee!"
-                              icon={<Coffee />}
-                              size="small"
-                              variant="icon"
-                            />
-                          </Anchor>
-                        </Tooltip>
+                        
                       </Flex>
                     </Box>
                   </Box>
