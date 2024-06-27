@@ -1,10 +1,4 @@
-import {
-  styled,
-  Grid,
-  Text,
-  EM,
-  Flex,
-} from '@maximeheckel/design-system';
+import { styled, Grid, Text, EM, Flex } from '@maximeheckel/design-system';
 import Logo from '@core/components/Logo';
 import Link from 'next/link';
 import React from 'react';

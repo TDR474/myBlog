@@ -136,7 +136,10 @@ const IndexPage = (props: Props) => {
                 style={{ textDecoration: 'none' }}
                 tabIndex={-1}
               >
-                <Button variant="secondary" endIcon={<Icon.Portfolio size="4" />}>
+                <Button
+                  variant="secondary"
+                  endIcon={<Icon.Portfolio size="4" />}
+                >
                   Crypto30Index
                 </Button>
                 <VisuallyHidden as="p">

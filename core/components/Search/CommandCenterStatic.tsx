@@ -1,9 +1,4 @@
-import {
-  css,
-  Flex,
-  Text,
-  Pill,
-} from '@maximeheckel/design-system';
+import { css, Flex, Text, Pill } from '@maximeheckel/design-system';
 import { motion } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { MAX_HEIGHT } from './constants';
@@ -17,9 +12,7 @@ const commandCenterStaticWrapper = css({
   padding: '0 8px',
 });
 
-const items = [
-  'aimode-tools',
-];
+const items = ['aimode-tools'];
 
 interface CommandCenterStaticProps {
   collapse: boolean;
@@ -30,11 +23,7 @@ const CommandCenterStatic = (props: CommandCenterStaticProps) => {
   const { collapse, onItemClick } = props;
   const [hidden, setHidden] = useState(false);
 
-  const [
-    selectedResult,
-    previousResult,
-    nextResult,
-  ] = useIndexItem(items);
+  const [selectedResult, previousResult, nextResult] = useIndexItem(items);
 
   const handleKey = useCallback(
     (event: KeyboardEvent) => {
