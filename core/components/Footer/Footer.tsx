@@ -1,6 +1,5 @@
 import {
   styled,
-  Anchor,
   Grid,
   Text,
   EM,

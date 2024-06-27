@@ -131,6 +131,18 @@ const IndexPage = (props: Props) => {
                   Link redirects to my Github profile page
                 </VisuallyHidden>
               </a>
+              <a
+                href="https://lucidity-demo-production.up.railway.app/"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button variant="secondary" endIcon={<Icon.Portfolio size="4" />}>
+                  Crypto30Index
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my Github profile page
+                </VisuallyHidden>
+              </a>
             </Flex>
           </Flex>
           {/* </Grid.Item>
