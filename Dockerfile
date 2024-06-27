@@ -1,6 +1,9 @@
 # Use an official node image as a parent image
 FROM node:18
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Set the working directory
 WORKDIR /app
 
