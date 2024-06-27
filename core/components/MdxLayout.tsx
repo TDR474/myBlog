@@ -1,13 +1,15 @@
-import React from 'react';
-import { MDXProvider } from '@mdx-js/react';
+// components/Layout.tsx
+import React, { useEffect, useState } from 'react';
 import TeX from '@matejmazur/react-katex';
+import { MDXProvider } from '@mdx-js/react';
 import styled from 'styled-components';
+import { ComponentType } from 'react';
 
 const MathDisplay = styled.div`
   margin-bottom: -10px; /* Adjust this value as needed */
 `;
 
-const components = {
+const components: Record<string, ComponentType<any>> = {
   div: (props) => {
     if (props.className?.includes('math-display')) {
       return (
@@ -30,14 +32,20 @@ const components = {
   },
 };
 
-const MdxLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <div>
-      <MDXProvider components={components}>{children}</MDXProvider>
-    </div>
-  );
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Client-side code that ensures KaTeX CSS is applied correctly
+    import('katex/dist/katex.min.css');
+  }, []);
+
+  if (!mounted) {
+    return null; // Render nothing on the server
+  }
+
+  return <MDXProvider components={components}>{children}</MDXProvider>;
 };
 
-MdxLayout.displayName = 'MdxLayout';
-
-export default MdxLayout;
+export default Layout;
