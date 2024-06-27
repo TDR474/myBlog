@@ -5,6 +5,8 @@
     "paths": {
       "@core/*": ["core/*"]
     },
+    "noEmitOnError": false,
+    "skipLibCheck": true,
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "es2022"],
