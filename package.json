@@ -29,7 +29,7 @@
     "unlink-ds": "rm -rf .next && pnpm unlink && pnpm install"
   },
   "dependencies": {
-    "@codesandbox/sandpack-react": "1.18.4",
+    "@codesandbox/sandpack-react": "2.14.4",
     "@matejmazur/react-katex": "^3.1.3",
     "@maximeheckel/design-system": "^2.1.0",
     "@mdx-js/loader": "^3.0.1",
