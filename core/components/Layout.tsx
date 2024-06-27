@@ -1,9 +1,10 @@
-// components/Layout.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ComponentType } from 'react';
 import TeX from '@matejmazur/react-katex';
 import { MDXProvider } from '@mdx-js/react';
 import styled from 'styled-components';
-import { ComponentType } from 'react';
+
+// @ts-ignore: Importing CSS
+import 'katex/dist/katex.min.css';
 
 const MathDisplay = styled.div`
   margin-bottom: -10px; /* Adjust this value as needed */
@@ -37,8 +38,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     setMounted(true);
-    // Client-side code that ensures KaTeX CSS is applied correctly
-    import('katex/dist/katex.min.css');
   }, []);
 
   if (!mounted) {
@@ -47,5 +46,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return <MDXProvider components={components}>{children}</MDXProvider>;
 };
+
+Layout.displayName = 'Layout';
 
 export default Layout;
