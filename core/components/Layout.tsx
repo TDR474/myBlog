@@ -1,13 +1,15 @@
+// components/Layout.tsx
 import React, { useEffect, useState } from 'react';
 import TeX from '@matejmazur/react-katex';
-import { MDXProvider, MDXProviderComponentsProp } from '@mdx-js/react';
+import { MDXProvider } from '@mdx-js/react';
 import styled from 'styled-components';
+import { ComponentType } from 'react';
 
 const MathDisplay = styled.div`
   margin-bottom: -10px; /* Adjust this value as needed */
 `;
 
-const components: MDXProviderComponentsProp = {
+const components: Record<string, ComponentType<any>> = {
   div: (props) => {
     if (props.className?.includes('math-display')) {
       return (
@@ -45,7 +47,5 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return <MDXProvider components={components}>{children}</MDXProvider>;
 };
-
-Layout.displayName = 'Layout';
 
 export default Layout;
