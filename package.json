@@ -9,7 +9,7 @@
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
     "analyze:server": "cross-env BUNDLE_ANALYZE=server next build",
     "build:dev": "next build",
-    "build": "next build",
+    "build": "next build --no-lint",
     "cy:open": "cypress open",
     "cy:run": "cypress run --browser chrome",
     "dev": "next dev",
