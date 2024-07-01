@@ -121,7 +121,7 @@ const ContentSecurityPolicy = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com https://cdn.jsdelivr.net https://cdn.vercel-insights.com/ https://cdnjs.cloudflare.com; 
     child-src *.youtube.com *.google.com *.twitter.com *.codesandbox.io;
-    style-src 'self' 'unsafe-inline' *.googleapis.com https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' *.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/;
     img-src * blob: data:;
     media-src 'self' d2xl4m2ghaywko.cloudfront.net https://video.twimg.com;
     connect-src *;

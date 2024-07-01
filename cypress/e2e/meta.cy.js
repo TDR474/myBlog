@@ -1,11 +1,11 @@
 describe('SEO: Verify meta tag integrity', () => {
   it('has all the meta tags and the expected canonical url set in the landing page head', () => {
     cy.visit('/');
-    cy.get('title').should('contain', "Maxime Heckel's Blog");
+    cy.get('title').should('contain', "Frank Zhu's Blog");
     cy.get('meta[name="description"]').should(
       'have.attr',
       'content',
-      "Hi I'm Maxime, and this is my blog. Here, I share through my writing my experience as a frontend engineer and everything I'm learning about on React, Shaders, React Three Fiber, Framer Motion, and more."
+      "Hi I'm Frank, and this is my blog. Here, I share through my writing my experience as a frontend engineer and everything I'm learning about on React, Shaders, React Three Fiber, Framer Motion, and more."
     );
     cy.get('meta[name="twitter:site"]')
       .should('have.attr', 'content')

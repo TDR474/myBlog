@@ -133,10 +133,10 @@ class MyDocument extends Document {
             integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"
             crossOrigin="anonymous"
           />
-          <link
+          {/* <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.0/themes/prism.min.css"
-          />
+          /> */}
           <style
             id="stitches"
             dangerouslySetInnerHTML={{ __html: getCssText() }}
@@ -155,10 +155,11 @@ class MyDocument extends Document {
             integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" 
             crossOrigin="anonymous"
             onLoad="renderMathInElement(document.body);"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script>
+          {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script> */}
         </Head>
         <body>
-          <Script src="/sw.js"></Script>
+          <Script src="public/sw.js"></Script>
           <script
             key="maximeheckel-theme"
             dangerouslySetInnerHTML={{
