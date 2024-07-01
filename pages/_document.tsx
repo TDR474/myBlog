@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { getCssText } from '@maximeheckel/design-system';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import Script from 'next/script';
@@ -50,6 +51,39 @@ class MyDocument extends Document {
             crossOrigin="anonymous"
           />
           <link
+            rel="preload"
+            href="/fonts/tiempos-text-web-regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <link
+            rel="preload"
+            href="/fonts/tiempos-text-web-semibold.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <link
+            rel="preload"
+            href="/fonts/tiempos-text-web-semibold-italic.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <link
+            rel="preload"
+            href="/fonts/tiempos-text-web-regular-italic.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <link
+            href="/static/favicons/site-logo-f.png"
+            rel="icon"
+            sizes="16x16"
+          />
+          {/* <link
             href="/static/favicons/apple-touch-icon.png"
             rel="apple-touch-icon"
             sizes="180x180"
@@ -83,7 +117,7 @@ class MyDocument extends Document {
             rel="icon"
             sizes="16x16"
             type="image/png"
-          />
+          /> */}
           <link rel="alternate" type="application/rss+xml" href="/rss.xml" />
           <link
             rel="webmention"
@@ -99,12 +133,29 @@ class MyDocument extends Document {
             integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"
             crossOrigin="anonymous"
           />
+          <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.0/themes/prism.min.css"
+          />
           <style
             id="stitches"
             dangerouslySetInnerHTML={{ __html: getCssText() }}
           />
           <meta charSet="utf-8" />
           <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+          <script 
+            defer 
+            src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" 
+            integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" 
+            crossOrigin="anonymous">
+          </script>
+          <script 
+            defer 
+            src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" 
+            integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" 
+            crossOrigin="anonymous"
+            onLoad="renderMathInElement(document.body);"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script>
         </Head>
         <body>
           <Script src="/sw.js"></Script>

@@ -1,5 +1,4 @@
 import { Box, Flex, Text } from '@maximeheckel/design-system';
-import { loader } from 'lib/next-image-loader';
 import NextImage, { ImageProps as NextImageProps } from 'next/image';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Content, Overlay, Trigger } from './Lightbox';
@@ -16,34 +15,44 @@ const Image = (props: ImageProps) => {
       <Flex
         as="figure"
         direction="column"
-        css={{ margin: '0', width: '100%' }}
-        alignItems="start"
+        css={{ 
+          margin: '0', 
+          width: '100%',
+          alignItems: 'center', // Center children horizontally
+        }}
       >
         <Trigger tabIndex={0}>
           <Box
-            as={NextImage}
             css={{
-              borderRadius: 'var(--border-radius-3)',
+              display: 'flex',
+              justifyContent: 'center',
               width: '100%',
-              height: 'auto',
-              objectFit: 'cover',
             }}
-            loader={loader}
-            {...rest}
-            quality={90}
-            sizes="100vw"
-            style={{
-              border: border
-                ? '3px solid oklch(from var(--gray-500) l c h / 70%)'
-                : 'none',
-            }}
-          />
+          >
+            <Box
+              as={NextImage}
+              css={{
+                borderRadius: 'var(--border-radius-3)',
+                maxWidth: '100%',
+                height: 'auto',
+                objectFit: 'contain',
+              }}
+              {...rest}
+              style={{
+                border: border
+                  ? '3px solid oklch(from var(--gray-500) l c h / 70%)'
+                  : 'none',
+              }}
+            />
+          </Box>
         </Trigger>
         <Text
           as="figcaption"
           css={{
             lineHeight: '1.5',
             paddingTop: '10px',
+            textAlign: 'center',
+            width: '100%',
           }}
           size="1"
           variant="tertiary"
@@ -61,13 +70,10 @@ const Image = (props: ImageProps) => {
                 css={{
                   width: '100%',
                   height: 'auto',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   borderRadius: 'var(--border-radius-3)',
                 }}
-                loader={loader}
                 {...props}
-                quality={90}
-                sizes="100vw"
               />
             </Dialog.Close>
           </Content>

@@ -1,3 +1,8 @@
+:root {
+  --font-display: 'Lora', serif;
+  /* Keep other custom properties (variables) here */
+}
+
 ::selection {
   background-color: var(--emphasis);
   color: var(--accent);
@@ -16,8 +21,8 @@ body {
   text-rendering: optimizeLegibility;
   margin: 0;
 }
-.math-inline {
-  display: inline-block; /* Ensure inline math stays inline */
+.math-inline svg {
+  display: inline !important;
 }
 /* [hidden],
 [aria-hidden='true'], */

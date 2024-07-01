@@ -8,10 +8,11 @@ import { calculateLinesToHighlight, hasTitle } from './utils';
 (typeof global !== 'undefined' ? global : window).Prism = Prism;
 
 /**
- * This imports the syntax highlighting style for the Swift and GLSLlanguage
+ * This imports the syntax highlighting style for the Swift, GLSL, and Python languages
  */
 require('prismjs/components/prism-swift');
 require('prismjs/components/prism-glsl');
+require('prismjs/components/prism-python');
 
 export const HighlightedCodeText = (props: HighlightedCodeTextProps) => {
   const { codeString, language, highlightLine } = props;
@@ -48,18 +49,16 @@ export const HighlightedCodeText = (props: HighlightedCodeTextProps) => {
               >
                 <LineNo data-testid="number-line">{index + 1}</LineNo>
                 <LineContent>
-                  {line.map((token, key) => {
-                    return (
-                      <span
-                        data-testid="content-line"
-                        key={key}
-                        {...getTokenProps({
-                          key,
-                          token,
-                        })}
-                      />
-                    );
-                  })}
+                {line.map((token, key) => {
+                const { key: tokenKey, ...tokenProps } = getTokenProps({ token, key });
+                return (
+                  <span
+                    data-testid="content-line"
+                    key={tokenKey}
+                    {...tokenProps}
+                  />
+                );
+              })}
                 </LineContent>
               </Line>
             );
@@ -130,39 +129,56 @@ const Pre = styled('pre', {
   fontFamily: 'var(--font-mono)',
   fontSize: 'var(--font-size-1)',
   lineHeight: '26px',
-
-  '.token.parameter,.token.imports,.token.plain,.token.comment,.token.prolog,.token.doctype,.token.cdata': {
+  '.token.comment': {
     color: 'var(--token-comment)',
   },
-
+  '.token.string-interpolation': {
+    color: '#BD93F9', // Assign a color for string interpolation
+  },
+  '.token.interpolation': {
+    color: '#BD93F9', // Assign a color for interpolation
+  },
+  '.token.format-spec': {
+    color: '#BD93F9', // Assign a color for format specifiers
+  },
+  '.token.conversion-option': {
+    color: '#BD93F9', // Assign a color for conversion options
+  },
+  '.token.triple-quoted-string': {
+    color: '#BD93F9', // Assign a color for triple-quoted strings
+  },
+  '.token.string': {
+    color: '#BD93F9', // Assign a color for strings
+  },
+  '.token.function': {
+    color: '#FF79C6', // Pink for functions like torch.randn
+  },
+  '.token.class-name': {
+    color: '#8BE9FD', // Cyan for class names
+  },
+  '.token.decorator': {
+    color: '#FF79C6', // Pink for decorators
+  },
+  '.token.keyword': {
+    color: '#FF79C6', // Pink for keywords
+  },
+  '.token.builtin': {
+    color: '#FF79C6', // Pink for built-ins
+  },
+  '.token.boolean': {
+    color: '#BD93F9', // Purple for booleans
+  },
+  '.token.number': {
+    color: '#BD93F9', // Purple for numbers
+  },
+  '.token.operator': {
+    color: '#FF79C6', // Pink for operators
+  },
   '.token.punctuation': {
-    color: 'var(--token-punctuation)',
-  },
-
-  '.token.property,.token.tag,.token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted': {
-    color: 'var(--token-symbol)',
-  },
-
-  '.token.selector,.token.attr-name,.token.char,.token.builtin,.token.number,.token.string,.token.inserted': {
-    color: 'var(--token-selector)',
-  },
-
-  '.token.operator,.token.entity,.token.url,.language-css .style': {
-    color: 'var(--token-operator)',
-  },
-
-  '.token.atrule,.token.attr-value,.token.keyword': {
-    color: 'var(--token-keyword)',
-  },
-
-  '.token.function,.token.maybe-class-name,.token.class-name': {
-    color: 'var(--token-function)',
-  },
-
-  '.token.regex,.token.important,.token.variable': {
-    color: 'var(--token-operator)',
+    color: 'var(--token-punctuation)', // Default color for punctuation
   },
 });
+
 
 const Line = styled('div', {
   display: 'table',
@@ -197,6 +213,6 @@ const CodeSnippetTitle = styled('p', {
   marginBlockStart: '0px',
   fontSize: 'var(--font-size-1)',
   marginBottom: '0px',
-  color: 'var(--text-primary)',
+  color: 'var(--text-secondary)',
   fontWeight: '500',
 });

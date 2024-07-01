@@ -9,9 +9,17 @@
             <link>https://blog.maximeheckel.com</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Thu, 27 Jun 2024 16:38:02 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 01 Jul 2024 16:26:16 GMT</lastBuildDate>
         <atom:link href="https://blog.maximeheckel.com/rss.xml" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
+        <item>
+            <title><![CDATA[A Geometric Interpretation of Neural Networks]]></title>
+            <description><![CDATA[It's not a black box, it's a high-dimensional space transformer!]]></description>
+            <link>https://blog.maximeheckel.com/posts/neural-network</link>
+            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/neural-network</guid>
+            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <pubDate>Tue, 20 Feb 2024 08:00:00 GMT</pubDate>
+        </item>
         <item>
             <title><![CDATA[Nelson-Seigel 3-factor Model & Forecasting]]></title>
             <description><![CDATA[Ready to forecast some yields? Nelson-Seigel is here to help! No stochastic calculus required.]]></description>
@@ -44,7 +52,7 @@
             <pubDate>Tue, 20 Apr 2021 08:00:00 GMT</pubDate>
         </item>
         <item>
-            <title><![CDATA[Naive Bayes and Logistic Regression: A Deep Dive (WIP)]]></title>
+            <title><![CDATA[Naive Bayes v.s. Logistic Regression: A Deep Dive]]></title>
             <link>https://blog.maximeheckel.com/posts/naive-bayes-logistic</link>
             <guid isPermaLink="false">https://blog.maximeheckel.com/posts/naive-bayes-logistic</guid>
             <dc:creator><![CDATA[Maxime heckel]]></dc:creator>

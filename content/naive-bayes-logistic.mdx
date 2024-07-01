@@ -1,5 +1,5 @@
 ---
-title: 'Naive Bayes and Logistic Regression: A Deep Dive (WIP)'
+title: 'Naive Bayes v.s. Logistic Regression: A Deep Dive'
 subtitle:
 date: '2021-04-15T08:00:00.000Z'
 updated: '2024-06-04T08:00:00.000Z'
@@ -14,77 +14,102 @@ featured: false
   [TEX All Things](https://chromewebstore.google.com/detail/tex-all-the-things/cbimabofgmfdkicghcadidpemeenbffn?hl=en).
 </Callout>
 
+## Premise
+
+Before we dive into the math, let's first define a smallet meaningful example: [classifying words as either complex or not complex](https://alt.qcri.org/semeval2016/task11/).
+
+Let's say we have a dataset of words, and we want to classify them as either complex or not complex. We have three features for each word: length, frequency, and syllables. We then use these features to train a model to predict the class of a word via Naive Bayes or Logistic Regression.
+## Naive Bayes 
+
 For Naive Bayes, we are assuming each feature is independent of each other in a common cause Bayes Net configuration, i.e., given a sample of $m$ words and $n$ features:
 
-<div className="math-display">
-  {`\\begin{align}
-  P(Y, F) = \\underbrace{P(Y)}_{\\text{prior}} \\prod_{i=1}^n \\underbrace{P(f_i|Y)}_{\\text{likelihood}}; \\quad \\forall f_i \\in F, i \\neq j, f_i \\perp f_j | Y;
-  \\end{align}`}
-</div>
 
-where 
-<div className="math-display">
-  {`\\begin{align}
-  F=\\{f_{1}, f_{2}, f_{3}\\}, Y \\in \\{1, 0\\}
-  \\end{align}`}
-</div>
+$$
+P(Y, F) = \underbrace{P(Y)}_{\text{prior}} \prod_{i=1}^n \underbrace{P(f_i|Y)}_{\text{likelihood}}; \quad  \forall f_i \in F,i \neq j, f_i\perp f_j | Y;
+$$
 
-Note our **parameter (the prior and likelihoods)** are calculated from the training data using maximum likelihood/relative frequencies:
+where $F=\{f_{len}, f_{freq}, f_{syl}\}$ and $Y \in \{1, 0\}$. Each $f_i$ is a $m \times 1$ feature vector where $m$ is the number of feature assignments; thus $F$ is a $m \times n$ matrix. $Y$ is a $m \times 1$ vector of class labels. To visualize our data matrix:
 
-<div className="math-display">
-  {`\\begin{align}
-  \\theta_{NB} = \\{\\{P(Y_j)\\}, \\{P(f_i|Y_j)\\}_{i=1}^m\\}^{|Y|}_{j=0}
-  \\end{align}`}
-</div>
+$$
+\begin{bmatrix}
+Y_1 & F_1\\
+Y_2 & F_2\\
+\vdots & \vdots\\
+Y_m & F_m
+\end{bmatrix}
+=
+\begin{bmatrix}
+Y_1 & f_{len,1} & f_{freq,1} & f_{syl,1}\\
+Y_2 & f_{len,2} & f_{freq,2} & f_{syl,2}\\
+\vdots & \vdots & \vdots & \vdots\\
+Y_m & f_{len,m} & f_{freq,m} & f_{syl,m}
+\end{bmatrix}
+$$
 
-<div className="math-display">
-  {`\\begin{align}
-  P(Y_j) = \\frac{\\text{count}(Y_j)}{\\text{count}(Y)} \\
-  P(f_i|Y_j) = \\frac{\\text{count}(f_i, Y_j)}{\\Sigma_i \\text{count}(f_i, Y)}
-  \\end{align}`}
-</div>
+
+Note our parameter $\theta_{NB} = \{\{P(Y_j)\}, \{P(f_i|Y_j)\}_{i=1}^m\}^{|Y|}_{j=0}$ (the prior and likelihoods) are calculated from the training data using maximum likelihood/relative frequencies. In our case, we have two classes, so $|Y|=2$.
+
+$$
+\begin{align}
+P(Y_j) &= \frac{count(Y_j)}{count(Y)}\\
+P(f_i|Y_j) &= \frac{count(f_i, Y_j)}{\Sigma_i count(f_i, Y)}
+\end{align}
+$$
+Again, to visualize our joint distribution matrix, we have the following matrix:
+
+$$
+\begin{bmatrix}
+P(Y = 0) & P(f_{len,1}|Y_1=0) & P(f_{freq,1}|Y_1=0) & P(f_{syl,1}|Y_1=0)\\
+P(Y = 1) & P(f_{len,1}|Y_1=1) & P(f_{freq,1}|Y_1=1) & P(f_{syl,1}|Y_1=1)\\
+\vdots & \vdots & \vdots & \vdots\\
+P(Y = 0) & P(f_{len,m}|Y_m=0) & P(f_{freq,m}|Y_m=0) & P(f_{syl,m}|Y_m=0)\\
+P(Y = 1) & P(f_{len,m}|Y_m=1) & P(f_{freq,m}|Y_m=1) & P(f_{syl,m}|Y_m=1)
+\end{bmatrix}
+$$
+
+And the size of the joint distribution matrix is is $ m * |Y|\text{by}$ $|F|+1$, where $|F|$ is our number of feature assigments. 
+
 
 Inference for our Naive Bayes is done by first computing the posterior from the calculated joint:
 
-<div className="math-display">
-  {`\\begin{align}
-  \\underbrace{P(Y|F)}_{\\text{posterior}} = \\frac{P(Y, F)}{P(F)}, \\quad P(F) = \\sum_{i=1}^{|Y|} P(Y_i, F)
-  \\end{align}`}
-</div>
+$$
+\underbrace{P(Y|F)}_{\text{posterior}} = \frac{P(Y, F)}{P(F)}, \quad P(F) = \sum_{i=1}^{|Y|} P(Y_i, F)
+$$
 
-Then our Naive Bayes prediction $Y$ for our words is found by maximizing the posterior (note $P(F)$ is a normalizing constant), or maximizing the joint distribution:
+Then our prediction $Y_{NB}$ for our words is found by maximizing the posterior (note $P(F)$ is a normalizing constant), or maximizing the joint distribution:
 
-<div className="math-display">
-  {`\\begin{align} 
-  Y_{NB} &= \\operatorname*{arg\\,max}_Y P(Y | F) \\\\ 
-  &= \\operatorname*{arg\\,max}_Y P(Y, F)\\\\ 
-  &= \\operatorname*{arg\\,max}_Y P(Y) \\prod_{i=1}^n P(f_i | Y) 
-  \\end{align}`}
-</div>
+$$
+\begin{align}
+Y_{NB} &= \operatorname*{arg\,max}_Y P(Y | F) \\
+        &= \operatorname*{arg\,max}_Y P(Y, F)\\
+        &= \operatorname*{arg\,max}_Y P(Y) \prod_{i=1}^n P(f_i | Y)
+\end{align}
+$$
+
+## Logistic Regression
 
 Now for logistic regressions, we are stipulating that the following parametric representation; let $Z = F\theta$:
 
-<div className="math-display">
-  {`\\begin{align}
-  P(Y=1|F) = \\sigma(Z)=\\frac{e^Z}{1+e^Z}
-  \\end{align}`}
-</div>
+$$
+P(Y=1|F) = \sigma(Z)=\frac{e^Z}{1+e^Z}
+$$
 
 Where $\sigma(*)$ is the sigmoidal function that models the conditional class probability. $\theta$ is a $n \times 1$ vector of parameters.
 
 Instead of using relative frequencies from training data, Logistic regression's maximum likelihood finds the parameters $\theta$ that maximizes the likelihood function $L(\theta)$:
 
-<div className="math-display">
-  {`\\begin{align}
-  L(\\theta) = \\prod_{i=1}^n P(f_i|Y=1) \\prod_{i=1}^n P(f_i|Y=0)\\
-  \\theta_{LR} = \\operatorname*{arg\\,max}_\\theta L(\\theta)
-  \\end{align}`}
-</div>
+$$
+L(\theta) = \prod_{i=1}^n P(f_i|Y=1) \prod_{i=1}^n P(f_i|Y=0)\\
+\theta_{LR} = \operatorname*{arg\,max}_\theta L(\theta)
+$$
 
-Inference is done by directly calculating the $Y = \sigma (F \theta)$, if $Y$> $0.5$, we set $Y=1$.
+Inference is done by directly cacluating the $Y_{LR} = \sigma(F\theta_{LR})$, if $Y_{LR} \geq 0.5$, we set $Y_{LR}=1$. In other words, we are finding the class label that maximizes the likelihood of the data given the parameters.
 
-Now it's clear that Naive Bayes is a **simpler model** than Logistic regression. The conditional independence assumption stipulates that each feature is conditionally independent of each other given the class, which may not be true. In contrast, logistic regression does not make such an assumption and instead stipulates a sigmoidal relation between class labels. The parameters of logistic regression are also more flexible, allowing parameters that are not directly calculated from the training dataset. From the design of both algorithms, we can see that Naive Bayes may have higher recall but can suffer from a higher false positive rate, affecting precision. Logistic Regression allows for more control over the trade-off between precision and recall through its objective function.
+Now it's clear that Naive Bayes is a **simpler model** than Logistic regression. The conditional independence assumption stipulates that each feature is conditionally independent of each other given the class, which may not be true. In constrast, logistic regression does not make such an assumption and instead stipulates a sigmoidal relation between class labels. The parameters of logistic regression is also more flexible, allowing parameters that are not directly calculated from the training dataset.
 
-Logistic regression has its own host of issues as well, though. If features are highly correlated, the variance inflation factor from $F$ will be high. The issue of **multicollinearity** is more pronounced if our library uses Newton-Ralphson instead of vanilla gradient descent, which requires us to calculate the Hessian. If $F$ is collinear, it's non-singular and thus non-invertible, leading to unstable coefficient estimates.
+Logistic regression has its own host of issues as well, though. If features are highly correlated, the [variance inflation factor](https://en.wikipedia.org/wiki/Variance_inflation_factor) from $F$ will be high. The issue of **multicollinearity** is more pronounced if our library uses [Newton-Ralphson](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html) instead of vanilla gradient descent, which requires us to calculate the Hessian. If $F$ is collinear, it's non-singular and thus non-invertible, leading to unstable coefficient estimates.
 
-The issue of multicollinearity is more pronounced when we take into account statistical significance. I don't think scikit learn filters based on significance (which itself could be an issue), but when we do, the standard errors we get from the regression won't be correct. A high VIF leads to decreased statistical power, and thus incorrect predictions.
+The issue of [multicollinearity](https://en.wikipedia.org/wiki/Multicollinearity) is more pronounced when we take into account statistical significance. I don't think scikit learn filters based on significance (which itself could be an issue), but when we do, the standard errors we get from the regression won't be correct. A high VIF leads to decreased statistical power, and thus incorrect predictions.
+
+
+

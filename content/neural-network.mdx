@@ -1,0 +1,236 @@
+---
+title: 'A Geometric Interpretation of Neural Networks'
+subtitle: It's not a black box, it's a high-dimensional space transformer!
+date: '2024-02-20T08:00:00.000Z'
+updated: '2024-02-20T08:00:00.000Z'
+categories: []
+slug: neural-network
+type: 'blogPost'
+featured: true
+colorFeatured: 'linear-gradient(90deg, #6D9EE7 12.5%, #ADBFE3 26.04%, #F0C9B4 39.06%, #F4BA6E 56.96%, #FFC178 70.83%, #E58334 92.71%);'
+---
+
+## The Canonical Neural Network
+
+Let's start by reviewing the basic multi-layer perceptron (MLP) neural network.
+Given $X\in \mathbb{R}^{m \times n}$ feature matrix ($m$ is number of examples, $n$ is the dimensionality of each input/no. of features), 
+and class labels $Y \in \mathbb{R}^{m \times 1}$, for any input $x^{(i)} \in \mathbb{R}^{n}, and  \in \mathbb{R}^{d}$ the output $\hat{y}$ is:
+
+$$
+\begin{align}
+h &= f(W_hx^{(i)} + b_h)\\
+y &= \sigma (W_y h + b_y)
+\end{align}
+$$
+
+
+Where $h$ is the hidden layers, $W_h \in \mathbb{R}^{n \times d} $ and $y \in \mathbb{R}^{n}$ is the output. 
+
+$\sigma(*)$ is the sigmoid function to convert the output to probability, and $f(*)$ is another non-linear function.
+
+## Geometric Interpretation
+
+But what do those matrix multiplications actually do?
+
+A neural network basically does 2 things: **Rotating** and **Twisting** in high dimensional space.
+Rotating in mathematical jargon for **Linear Transformations** ($W_hx^{(i)}$), and twisting is the **Non-linear transformations** ($\sigma (W_y h)$).
+Note that with bias $b$, the transformation is not just a rotation but also a translation, aka **Affine Transformation**.
+
+## Linear Transformations
+
+So what is a linear transformation and why does it matter for neural networks? When we multiply a matrix $W_h$ with our input vector $x$, we are essentially transforming the vector $x$ to a new vector $h$ (hidden layer), 
+i.e., $h = W_h x$. This matrix multiplication, in essense, *is* linear transformation.
+
+This transformation can be thought of as **a combination of rotation and/or scaling and/or reflection** of the input vector $x$.
+Without the loss of generality, let's say I have this transformation matrix $M$, and depending on its characteristics, it can do the following:
+
+- **Rotation** (when the $M$ is orthonormal, i.e. $W_h^TW_h = I$). 
+
+     E.g., if $M = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ is rotating $x$ by 90 degrees in the counter-clockwise direction.)
+- **Scaling** (when the $M$ is diagonal). 
+
+     E.g., if $M = \begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix}$ is scaling $x$ by 2 in the x-axis and 3 in the y-axis.
+- **Reflection** (when the $det(M)$ is negative). 
+    
+    E.g. $M = \begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}$ is reflecting $x$ in the x-axis. 
+- **Shearing** (when $M$ is non-zero off-diagonal). 
+
+    E.g. $M = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ is shearing $x$ in the x-axis.
+
+Let's visualize the linear transformations on an arbitrary **2D Cloud** of $1000$ points $X = \{x^{(i)} \in \mathbb{R}^2\}_{i=1}^{1000}$.
+You may ask "why points"? Because points *are* vectors in a high-dimensional space (more commonly used in Physics), and texts, images, etc., can be represented as a very long vector in those high dimensional spaces.
+
+
+```python {7-8,11} title=Creating Random 2D Cloud
+import torch
+from res.plot_lib import set_default, show_scatterplot, plot_bases
+from matplotlib.pyplot import plot, title, axis, figure, gca, gcf
+
+# generate some points in 2-D space
+n_points = 1_000
+X = torch.randn(n_points, 2).to('gpu')
+show_scatterplot(X, title='X')
+
+OI = torch.cat((torch.zeros(2, 2), torch.eye(2))).to('gpu')
+plot_bases(OI) # basis vector
+
+```
+<Image 
+  src="/img/random_points.png" 
+  alt="Set up: Random 2D Cloud, the green and red arrows are the basis vectors of the input space." 
+  width={300} 
+  height={100} 
+/>
+
+Now let's apply some linear transformations to this cloud of points. We first generate a random matrix $W$, and
+using **Singular Value Decomposition (SVD)**, we can decompose $W$ into 3 matrices $U, S, V$ such that $W = USV^T$. Don't worry about the strict definition for now, just noticed at how our original cloud changed:
+
+```python {2,4,11-13} title=Applying Linear Transformations
+# create a random matrix
+W = torch.randn(2, 2).to(device)
+# singular value decomposition
+U, S, V = torch.svd(W)
+
+torch.manual_seed(2024)
+# Define original basis vectors
+OI = torch.cat((torch.zeros(2, 2), torch.eye(2))).to(device)
+
+# Apply transformations sequentially
+Y1 = X @ V  # Note: V is already transposed in the output of torch.svd
+Y2 = Y1 @ torch.diag(S)  # S is a diagonal matrix
+Y3 = Y2 @ U
+
+# Transform the basis vectors for each step
+new_OI_Y1 = OI @ V
+new_OI_Y2 = new_OI_Y1 @ torch.diag(S)
+new_OI_Y3 = new_OI_Y2 @ U
+
+# Titles and data for plots
+titles = [
+    'X (Original)',
+    'Y1 = XV\nV = [{:.3f}, {:.3f}], [{:.3f}, {:.3f}]'.format(V[0, 0].item(), V[0, 1].item(), V[1, 0].item(), V[1, 1].item()),
+    'Y2 = SY1\nS = [{:.3f}, {:.3f}]'.format(S[0].item(), S[1].item()),
+    'Y3 = UY2\nU = [{:.3f}, {:.3f}], [{:.3f}, {:.3f}]'.format(U[0, 0].item(), U[0, 1].item(), U[1, 0].item(), U[1, 1].item())
+]
+Ys = [X, Y1, Y2, Y3]
+new_OIs = [OI, new_OI_Y1, new_OI_Y2, new_OI_Y3]
+
+# Plot the sequential transformations
+plt.figure(figsize=(15, 5))
+
+for i in range(4):
+    plt.subplot(1, 4, i+1)
+    show_scatterplot(Ys[i], colors, title=titles[i], axis=True)
+    # plot_bases(OI)
+    plot_bases(new_OIs[i])
+
+plt.show()
+```
+<Image 
+  src="/img/output.png" 
+  alt="From left to right: Original Cloud, Rotated Cloud, Scaled Cloud, Rotated Cloud" 
+  width={800} 
+  height={300} 
+/>
+
+Did you notice anything? The cloud of points was rotated, scaled, and rotated again. Let's analyze the transformations:
+
+- The first transformation $Y_1 = XV$ **rotated** the cloud $X$ by the matrix $V$. 
+
+    $$
+    V = \begin{bmatrix} 0.2545 & -0.9671 \\ -0.9671 & -0.2545 \end{bmatrix}
+    $$
+
+    To find how much the cloud was rotated, we first note that generally, a rotation matrix can be written as:
+
+    $$
+    V = \begin{bmatrix} \cos(\theta) & -\sin(\theta) \\ \sin(\theta) & \cos(\theta) \end{bmatrix}
+    $$
+
+    Which means we can extract the angle of rotation from the matrix $V$ using the formula $\theta = \arccos(\cos(\theta)) = \arccos(0.2545) =  -1.31$ randians.
+    This means that $V$ rotated the cloud by $-1.31 * \frac{180}{\pi} = -75.26$ degrees. In other words, the cloud was rotated by 75 degrees in the clockwise direction.
+
+    However, a 75 degrees rotation means that the blue cloud would be in the 4th quadrant, but the cloud is in the 3rd quadrant. This is because the matrix $V$ also contains a reflection! We can check that 
+    $det(V) = -1$, which means that the matrix $V$ is **reflecting** the cloud, resulting in the blue cloud landing in the 3rd quadrant (though outside of the scope of this article, we can find 
+    axis of reflection via eigen-decomposition).
+
+- The second transformation $Y_2 = SY_1$ **scaled** the cloud by the diagonal matrix $S = \begin{bmatrix} 2.2747 & 0 \\ 0 & 0.5933 \end{bmatrix}$. This means that the cloud was scaled by a factor of 2.3 in the x-axis and 0.5933 in the y-axis.
+We check that, indeed, the cloud had become both longer and thinner. 
+
+- Finally, the third transformation $Y_3 = UY_2$ **rotated** the cloud again by the matrix $U = \begin{bmatrix} -0.7383 & -0.6744 \\ -0.6744 & 0.7383 \end{bmatrix}$. This means that the cloud was rotated by -137.59 degrees, a clock-wise rotation.
+
+## Singular Value Decomposition (SVD)
+
+<Callout label="Essense of SVD and Linear Transformation" variant="info">
+**Any linear transformation can be thought of as simply stretching or compressing or flipping a square, provided we are allowed to rotate it first.**
+</Callout>
+
+What we just did called **Singular Value Decomposition** of the matrix $W$:
+
+$$
+\begin{equation}
+    W = U
+  \left[ {\begin{array}{cc}
+   s_1 & 0 \\
+   0 & s_2 \\
+  \end{array} } \right]
+  V^\top
+\end{equation}
+$$
+
+* $U, V$ are the rotation-reflection matrices we just saw.
+* $s_1$ is the scaling factor for the $x$ dimension, and $s_2$ is for the $y$ dimension. Larger the scaling factor, the more stretched the space is in that direction, and vice versa.
+
+## Non-linear Transformations
+
+Linear transforms can rotate, reflect, stretch and compress, but cannot **squash/curve**. 
+We need non-linearities for this. To visualize this, we can use the **tanh** function, which squashes the input to the range $(-1, 1)$. 
+For a 2D space, this squashes the points to a square, and we will scale the input by $s$ to make the effect more visible:
+
+$$
+   f(x)= \tanh \left(
+  \left[ {\begin{array}{cc}
+   s & 0 \\
+   0 & s \\
+  \end{array} } \right]  
+  x
+  \right)
+$$
+
+There are a couple of famous non-linear functions that are used in neural networks:
+* **Hyperbolic Tangent (tanh)**
+  * Squash the input to be between $-2.5$ and $2.5$
+  * Squash the output to be between $-1$ and $1$.
+  * Input and output (x and y) that are already in the range doesn't change much
+  * 2 kinks: one at $x=-2.5$ and the other at $x=2.5$
+* **Sigmoid**
+  * Squashes the input to be between $-6$ and $6$
+  * Squashes the output to be between $0$ and $1$
+  * Commonly used in the output layer of binary classifiers
+
+```python {9} title=Applying Non-linear Transformations
+import torch
+import torch.nn as nn
+plt.figure(figsize=(15, 5))
+plt.subplot(1, 4, 1)
+show_scatterplot(Y3, colors, title='h=Y3')
+plot_bases(OI)
+
+# Loop through scaling factors and plot
+for s in range(1, 4):
+    plt.subplot(1, 4, s + 1)
+    Y = torch.tanh(s * Y3).data  # Scale & apply non-linearity
+    show_scatterplot(Y, colors, title=f'Y=tanh({s}*h)')
+    plot_bases(OI, width=0.01)
+
+plt.show()
+```
+<Image 
+  src="/img/nonlinear.png" 
+  alt="From left to right: Result from previous Linear Transformation, scaled Non-linear Transformation with s=1, s=2, s=3" 
+  width={800} 
+  height={300} 
+/>
+
+And that's it! We have seen how a neural network can be thought of as a series of linear and non-linear transformations in high-dimensional space.
+This kind of flexibility allow neural networks to model complex relationships in the data, and is the reason why they are so powerful.

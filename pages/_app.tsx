@@ -25,10 +25,11 @@ const App = ({ Component, pageProps }: AppProps) => {
         />
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
-          integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"
+          integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww"
           crossOrigin="anonymous"
         />
+        
       </Head>
       <DefaultSeo />
       <Tooltip.Provider>

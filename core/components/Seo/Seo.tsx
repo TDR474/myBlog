@@ -76,7 +76,7 @@ const Seo = ({ title, desc, image, path, date, updated }: Props) => {
         datePublished={formattedDate}
         description={seo.description}
         images={[seo.image]}
-        publisherLogo="/static/favicons/android-chrome-192x192.png"
+        publisherLogo="/config/site-logo-f.png"
         publisherName={author}
         title={seo.title}
         url={seo.url}

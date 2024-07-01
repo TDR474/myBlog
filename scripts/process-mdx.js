@@ -5,7 +5,7 @@ const { serialize } = require('next-mdx-remote/serialize');
 const rehypeKatex = require('rehype-katex');
 const remarkMath = require('remark-math');
 import rehypeKatexSvelte from 'https://cdn.skypack.dev/rehype-katex-svelte';
-
+const GPT3Tokenizer = require('gpt3-tokenizer');
 const MAX_TOKEN = 100;
 
 // Remove JSX syntax from a string
@@ -39,6 +39,7 @@ function cleanMDXFile(mdxContent) {
     }
 
     if (!inCodeBlock) {
+      console.log(line);
       // Extract the link text from the line, remove any JSX syntax, and append it to the current section content
       const processed = extractLink(removeJSX(line));
       currentContent += `${processed}\n`;
@@ -116,15 +117,7 @@ async function processMdxFile(filePath) {
         remarkPlugins: [remarkMath],
         rehypePlugins: [
           [
-            rehypeKatexSvelte,
-            {
-              macros: {
-                '\\CC': '\\mathbb{C}',
-                '\\vec': '\\mathbf',
-                '\\mathbf': '\\mathbf',
-                '\\X': '\\mathrm{X}_{#1,#2}',
-              },
-            },
+            rehypeKatex
           ],
         ],
       },

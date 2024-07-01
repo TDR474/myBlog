@@ -83,21 +83,24 @@ const IndexPage = (props: Props) => {
       <Grid gapX={4} gapY={12} templateColumns={templateColumnsMedium}>
         <Grid.Item col={2}>
           <Flex alignItems="start" direction="column" gap="5">
-            <H1>
-              Hey <WavingHand /> I'm Frank, and this is my blog.{' '}
-              <Text
-                css={{
-                  lineHeight: 'unset',
-                  letterSpacing: '-0.5px',
-                }}
-                variant="secondary"
-                size="7"
-                weight="4"
-              >
-                I'm a masters student in Computer Science @UPenn SEAS with a
-                concentration in Artificial Intelligence.
-              </Text>
-            </H1>
+            <H2>
+            Hey <WavingHand /> I'm Frank, and this is my blog.{' '}
+            <Text
+              css={{
+                fontFamily: '"Times New Roman", serif',
+                fontWeight: 300, // regular weight
+                lineHeight: 'unset',
+                letterSpacing: '-0.5px',
+              }}
+              variant="secondary"
+              size="6"
+              weight="4"
+            >
+              I'm a masters student in Computer Science @UPenn SEAS with a
+              concentration in Artificial Intelligence.
+            </Text>
+
+            </H2>
             <Flex
               gap={4}
               css={{
@@ -106,7 +109,7 @@ const IndexPage = (props: Props) => {
               }}
             >
               <a
-                href="https://www.linkedin.com/in/ao-zhu-55474914b/"
+                href="https://www.linkedin.com/in/frank-zhu-55474914b/"
                 style={{ textDecoration: 'none' }}
                 tabIndex={-1}
               >

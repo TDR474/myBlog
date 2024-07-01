@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 import fs from 'fs';
 import matter from 'gray-matter';
 import path from 'path';
@@ -8,8 +8,8 @@ import { FrontMatterPost, Post } from 'types/post';
 import { remarkSectionize } from './remark-sectionize-fork';
 import { remarkFigure } from './remark-figure';
 import { remarkMeta } from './remark-meta';
-import rehypeKatexSvelte from 'rehype-katex-svelte';
 import remarkMath from 'remark-math';
+import rehypeMathjax from 'rehype-mathjax';
 
 const root = process.cwd();
 
@@ -38,8 +38,9 @@ export const getFileBySlug = async (slug: string): Promise<FrontMatterPost> => {
         require('remark-autolink-headings'),
         remarkSectionize,
         remarkFigure,
+        remarkMath
       ],
-      rehypePlugins: [rehypeKatexSvelte],
+      rehypePlugins: [remarkMeta, rehypeMathjax],
     },
   });
 

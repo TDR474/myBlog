@@ -61,7 +61,7 @@ in the problem definition. They treat all non-goal nodes in the frontier equally
 
 ### DFS Code
 
-```python
+```python title=Depth-First Search (DFS)
 def dfs(start, graph):
     stack = [start]
     reached = set()
@@ -101,7 +101,7 @@ Breadth-First Search (BFS) explores nodes level by level, making it ideal for fi
 
 ### BFS Code
 
-```javascript
+```python title=Breadth-First Search (BFS)
 from queue import Queue
 
 def bfs(start, graph):
@@ -140,7 +140,7 @@ def bfs(start, graph):
 
 ### IDDFS Code
 
-```javascript
+```python title=Iterative Deepening Depth-First Search (IDDFS)
 def iddfs(start, goal, graph):
     def dls(node, depth):
         if depth == 0 and node == goal:
@@ -179,7 +179,7 @@ Dijkstra's algorithm is used for finding the shortest paths between nodes in a w
 
 ### Dijkstra's Code
 
-```javascript
+```python title=Uniform Cost Search (Dijkstra)
 from queue import PriorityQueue
 
 def dijkstra(start, goal, graph):
@@ -220,7 +220,7 @@ Greedy Best-First Search uses **heuristics** to guide its search, prioritizing n
 
 ### Greedy Best-First Code
 
-```javascript
+```python title=Greedy Best-First Search
 from queue import PriorityQueue
 
 def greedy_best_first_search(start, goal, graph, heuristic):
@@ -257,7 +257,7 @@ A\* search **combines the strengths of Dijkstra's algorithm and Greedy Best-Firs
 
 ### A\* Code
 
-```python
+```python title=A* Search
 from queue import PriorityQueue
 
 def a_star_search(start, goal, graph, heuristic):

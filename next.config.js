@@ -5,8 +5,16 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const withMDX = require('@next/mdx')({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [async () => (await import('remark-math')).default],
-    rehypePlugins: [async () => (await import('rehype-katex')).default],
+    remarkPlugins: [
+      async () => (await import('remark-parse')),
+      async () => (await import('remark-math')),
+      async () => (await import('remark-rehype')),
+    ],
+    rehypePlugins: [
+      async () => (await import('rehype-katex')),
+      async () => (await import('rehype-stringify')),
+    ],
+    providerImportSource: '@mdx-js/react',
   },
 });
 
@@ -111,13 +119,13 @@ module.exports = withBundleAnalyzer(
 
 const ContentSecurityPolicy = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com; 
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com https://cdn.jsdelivr.net https://cdn.vercel-insights.com/ https://cdnjs.cloudflare.com; 
     child-src *.youtube.com *.google.com *.twitter.com *.codesandbox.io;
-    style-src 'self' 'unsafe-inline' *.googleapis.com;
+    style-src 'self' 'unsafe-inline' *.googleapis.com https://cdn.jsdelivr.net;
     img-src * blob: data:;
     media-src 'self' d2xl4m2ghaywko.cloudfront.net https://video.twimg.com;
     connect-src *;
-    font-src 'self';
+    font-src 'self' https://cdn.jsdelivr.net db.onlinewebfonts.com;
 `;
 
 const securityHeaders = [
