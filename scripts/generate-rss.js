@@ -36,12 +36,12 @@ const matter = require('gray-matter');
 
   try {
     const feed = new RSS({
-      title: "Maxime Heckel's Blog",
+      title: "Frank's Blog",
       description:
-        "Hi I'm Maxime, and this is my blog. Here, I share through my writing my experience as a frontend engineer and everything I'm learning about on React, Typescript, SwiftUI, Serverless, and testing.",
-      site_url: 'https://blog.maximeheckel.com',
-      feed_url: 'https://blog.maximeheckel.com/rss.xml',
-      image_url: 'https://blog.maximeheckel.com/static/og/main-og-image.png',
+        "Hi I'm Frank!",
+      site_url: 'https://frankyywestside.up.railway.app/',
+      feed_url: 'https://frankyywestside.up.railway.app/',
+      image_url: 'https://frankyywestside.up.railway.app/',
       language: 'en',
     });
 
@@ -50,13 +50,13 @@ const matter = require('gray-matter');
     );
 
     content.forEach((post) => {
-      const url = `https://blog.maximeheckel.com/posts/${post.slug}`;
+      const url = `https://frankyywestside.up.railway.app//posts/${post.slug}`;
 
       feed.item({
         title: post.title,
         description: post.subtitle,
         date: new Date(post.date),
-        author: 'Maxime heckel',
+        author: 'Frank Zhu',
         url,
         guid: url,
       });

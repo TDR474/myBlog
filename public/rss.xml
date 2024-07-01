@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
-        <title><![CDATA[Maxime Heckel's Blog]]></title>
-        <description><![CDATA[Hi I'm Maxime, and this is my blog. Here, I share through my writing my experience as a frontend engineer and everything I'm learning about on React, Typescript, SwiftUI, Serverless, and testing.]]></description>
-        <link>https://blog.maximeheckel.com</link>
+        <title><![CDATA[Frank's Blog]]></title>
+        <description><![CDATA[Hi I'm Frank!]]></description>
+        <link>https://frankyywestside.up.railway.app/</link>
         <image>
-            <url>https://blog.maximeheckel.com/static/og/main-og-image.png</url>
-            <title>Maxime Heckel&apos;s Blog</title>
-            <link>https://blog.maximeheckel.com</link>
+            <url>https://frankyywestside.up.railway.app/</url>
+            <title>Frank&apos;s Blog</title>
+            <link>https://frankyywestside.up.railway.app/</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Mon, 01 Jul 2024 16:26:16 GMT</lastBuildDate>
-        <atom:link href="https://blog.maximeheckel.com/rss.xml" rel="self" type="application/rss+xml"/>
+        <lastBuildDate>Mon, 01 Jul 2024 22:37:34 GMT</lastBuildDate>
+        <atom:link href="https://frankyywestside.up.railway.app/" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
         <item>
             <title><![CDATA[A Geometric Interpretation of Neural Networks]]></title>
             <description><![CDATA[It's not a black box, it's a high-dimensional space transformer!]]></description>
-            <link>https://blog.maximeheckel.com/posts/neural-network</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/neural-network</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/neural-network</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/neural-network</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Tue, 20 Feb 2024 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[Nelson-Seigel 3-factor Model & Forecasting]]></title>
             <description><![CDATA[Ready to forecast some yields? Nelson-Seigel is here to help! No stochastic calculus required.]]></description>
-            <link>https://blog.maximeheckel.com/posts/Nelson-Seigel-3-factor</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/Nelson-Seigel-3-factor</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/Nelson-Seigel-3-factor</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/Nelson-Seigel-3-factor</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Tue, 31 Oct 2023 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[A Primer on Search Problems: From DFS to A* Search]]></title>
             <description><![CDATA[From DFS, BFS, IDDFS, UCS, Greedy, to A* - a comprehensive journy in the world of search.]]></description>
-            <link>https://blog.maximeheckel.com/posts/DFS-to-A-star</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/DFS-to-A-star</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/DFS-to-A-star</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/DFS-to-A-star</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Sun, 02 Jul 2023 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[Basics on Graphs]]></title>
             <description><![CDATA[Part of the introduction to Algorithms Series]]></description>
-            <link>https://blog.maximeheckel.com/posts/basics-on-graphs</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/basics-on-graphs</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/basics-on-graphs</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/basics-on-graphs</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Thu, 03 Mar 2022 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[The Future Network: What Do We Want to Build?]]></title>
-            <link>https://blog.maximeheckel.com/posts/the-future-network</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/the-future-network</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/the-future-network</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/the-future-network</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Tue, 20 Apr 2021 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[Naive Bayes v.s. Logistic Regression: A Deep Dive]]></title>
-            <link>https://blog.maximeheckel.com/posts/naive-bayes-logistic</link>
-            <guid isPermaLink="false">https://blog.maximeheckel.com/posts/naive-bayes-logistic</guid>
-            <dc:creator><![CDATA[Maxime heckel]]></dc:creator>
+            <link>https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Thu, 15 Apr 2021 08:00:00 GMT</pubDate>
         </item>
     </channel>

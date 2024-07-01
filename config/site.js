@@ -20,8 +20,8 @@ module.exports = {
   title: "Frank Zhu's Blog",
   titleAlt: 'Frank Zhu | Blog',
   description: 'Welcome to my blog',
-  url: 'https://blog.maximeheckel.com', // Site domain without trailing slash
-  siteUrl: 'https://blog.maximeheckel.com/', // url + pathPrefix
+  url: 'https://frankyywestside.up.railway.app/', // Site domain without trailing slash
+  siteUrl: 'https://frankyywestside.up.railway.app//', // url + pathPrefix
   siteLanguage: 'en', // Language Tag on <html> element
   logo: 'src/static/logo/logo.png',
   image: 'site-logo-f.png',
@@ -32,5 +32,5 @@ module.exports = {
   backgroundColor: '#ffffff',
   twitter: '@MaximeHeckel', // Twitter Username
   twitterDesc:
-    'Maxime Heckel is a lead frontend engineer and space enthusiast currently based in New York.',
+    'Frank is a SWE currently based in New York.',
 };

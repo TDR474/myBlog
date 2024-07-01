@@ -34,7 +34,7 @@ const prettier = require('prettier');
 
                 return `
                         <url>
-                            <loc>${`https://blog.maximeheckel.com${route}/`}</loc>
+                            <loc>${`https://frankyywestside.up.railway.app${route}/`}</loc>
                             <changefreq>daily</changefreq>
                             <priority>0.7</priority>
                         </url>
