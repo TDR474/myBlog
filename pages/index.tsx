@@ -1,7 +1,32 @@
-import { Flex, Grid, H2, Text, Button, Icon, VisuallyHidden } from '@maximeheckel/design-system';
-import { motion } from 'framer-motion';
+import {
+  styled,
+  // Anchor,
+  // Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Icon,
+  Text,
+  VisuallyHidden,
+  H2,
+  H3,
+} from '@maximeheckel/design-system';
+// import { format } from 'date-fns';
+import { motion, MotionProps } from 'framer-motion';
+// import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import Layout from '@core/layout';
-// import Link from 'next/link';
+import { getAllFilesFrontMatter } from 'lib/mdx';
+import { Post } from 'types/post';
+import React from 'react';
+import { templateColumnsMedium } from 'styles/grid';
+
+// const NewsletterForm = dynamic(() => import('@core/components/NewsletterForm'));
+
+interface Props {
+  posts: Post[];
+}
 
 const WavingHand = () => (
   <motion.div
@@ -26,28 +51,53 @@ const WavingHand = () => (
   </motion.div>
 );
 
-const IndexPage = () => (
-  <Layout footer header headerProps={{ offsetHeight: 256 }}>
-    <Grid gapX={4} gapY={12}>
-      <Flex alignItems="start" direction="column" gap="5">
-        <H2>
-          Hey <WavingHand /> I'm Frank, and this is my blog.
-          <Text
-            css={{
-              fontFamily: '"Times New Roman", serif',
-              fontWeight: 300,
-              lineHeight: 'unset',
-              letterSpacing: '-0.5px',
-            }}
-            variant="secondary"
-            size="6"
-            weight="4"
-          >
-            I'm a masters student in Computer Science @UPenn SEAS with a
-            concentration in Artificial Intelligence.
-          </Text>
-        </H2>
-        <Flex
+let year = 0;
+
+const cardVariants = {
+  hover: {
+    scale: 1.05,
+  },
+  initial: {
+    scale: 1,
+  },
+};
+
+const glowVariants = {
+  hover: {
+    opacity: 0.8,
+  },
+  initial: {
+    scale: 1.05,
+    opacity: 0,
+  },
+};
+
+const IndexPage = (props: Props) => {
+  const { posts } = props;
+
+  return (
+    <Layout footer header headerProps={{ offsetHeight: 256 }}>
+      <Grid gapX={4} gapY={12} templateColumns={templateColumnsMedium}>
+        <Grid.Item col={2}>
+          <Flex alignItems="start" direction="column" gap="5">
+            <H2>
+              Hey <WavingHand /> I'm Frank, and this is my blog.{' '}
+              <Text
+                css={{
+                  fontFamily: '"Times New Roman", serif',
+                  fontWeight: 300, // regular weight
+                  lineHeight: 'unset',
+                  letterSpacing: '-0.5px',
+                }}
+                variant="secondary"
+                size="6"
+                weight="4"
+              >
+                I'm a masters student in Computer Science @UPenn SEAS with a
+                concentration in Artificial Intelligence.
+              </Text>
+            </H2>
+            <Flex
               gap={4}
               css={{
                 marginLeft: '-var(--space-3)',
@@ -98,8 +148,134 @@ const IndexPage = () => (
               </a>
             </Flex>
           </Flex>
-    </Grid>
-  </Layout>
-);
+        </Grid.Item>
+        <Grid.Item as="section" col={2}>
+          <Flex alignItems="start" direction="column" gap="5">
+            <H2>Featured</H2>
+            <Grid
+              as="ul"
+              css={{
+                margin: 0,
+                padding: 0,
+              }}
+              data-testid="featured-list"
+              gapY={4}
+            >
+              {posts
+                .filter((post) => post.featured)
+                .map((post) => {
+                  return (
+                    <motion.li
+                      style={{
+                        position: 'relative',
+                        marginLeft: '-var(--space-1)',
+                        marginRight: '-var(--space-1)',
+                        listStyle: 'none',
+                        cursor: 'pointer',
+                        marginBottom: 'calc(1.45rem / 2)',
+                        lineHeight: '1.9',
+                        letterSpacing: '0.3px',
+                      }}
+                      key={post.slug}
+                      data-testid="featured-article-item"
+                      initial="initial"
+                      whileHover="hover"
+                    >
+                      <Link
+                        href={`/posts/${post.slug}/`}
+                        passHref
+                        style={{
+                          textDecoration: 'none',
+                          color: 'var(--text-secondary)',
+                        }}
+                      >
+                        <Glow
+                          css={{
+                            background: post.colorFeatured,
+                          }}
+                          variants={glowVariants}
+                          transition={{
+                            type: 'tween',
+                            ease: 'easeOut',
+                            duration: 0.4,
+                          }}
+                        />
+                        <Flex
+                          css={{
+                            height: '95%',
+                            width: '105%',
+                            position: 'absolute',
+                            borderRadius: 'var(--border-radius-2)',
+                            top: '50%',
+                            left: '50%',
+                            background: 'var(--background)',
+                            transform: 'translateY(-50%) translateX(-50%)',
+                            filter: 'blur(20px)',
+                            transition: '0.5s',
+
+                            '@media(max-width: 700px)': {
+                              display: 'none',
+                            },
+                          }}
+                        />
+                        <Card<MotionProps>
+                          as={motion.div}
+                          variants={cardVariants}
+                          transition={{
+                            type: 'tween',
+                            ease: 'easeOut',
+                            duration: 0.4,
+                          }}
+                          depth={1}
+                        >
+                          <Card.Body>
+                            <H3
+                              gradient
+                              css={{
+                                marginBottom: '8px',
+                                backgroundImage: post.colorFeatured!,
+                              }}
+                            >
+                              {post.title}
+                            </H3>
+                            <Text
+                              as="p"
+                              css={{ marginBottom: '0px' }}
+                              size="2"
+                              weight="3"
+                              variant="tertiary"
+                            >
+                              {post.subtitle}
+                            </Text>
+                          </Card.Body>
+                        </Card>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+            </Grid>
+          </Flex>
+        </Grid.Item>
+      </Grid>
+    </Layout>
+  );
+};
+
+export async function getStaticProps() {
+  const posts = await getAllFilesFrontMatter();
+
+  return { props: { posts } };
+}
+
+const Glow = styled(motion.div, {
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: '100%',
+  webkitFilter: 'blur(15px)',
+  filter: 'blur(15px)',
+  borderRadius: 'var(--border-radius-2)',
+});
 
 export default IndexPage;
