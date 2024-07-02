@@ -254,6 +254,7 @@ const IndexPage = (props: Props) => {
         <Grid.Item col={2} as="section">
   <Flex alignItems="start" direction="column" gap="5">
     <H2>Articles </H2>
+    <H3>(Migrating to Node, more articles will be brought back up soon)</H3>
     <Grid
       as="ul"
       css={{
@@ -263,12 +264,15 @@ const IndexPage = (props: Props) => {
       data-testid="article-list"
       gapY={1}
     >
-      {posts.map((post) => {
+      {posts.map((post, index) => {
+        console.log(`Processing post #${index}:`, post);
+
         let currentYear;
         try {
           currentYear = new Date(post.date).getFullYear();
+          console.log(`Parsed year for post #${index}: ${currentYear}`);
         } catch (error) {
-          console.error("Invalid date format in post:", post);
+          console.error(`Invalid date format in post #${index}:`, post.date, error);
           return null;
         }
 
@@ -277,6 +281,7 @@ const IndexPage = (props: Props) => {
         if (currentYear !== year) {
           printYear = true;
           year = currentYear;
+          console.log(`New year detected for post #${index}, printing year: ${currentYear}`);
         } else {
           printYear = false;
         }
@@ -328,7 +333,6 @@ const IndexPage = (props: Props) => {
         );
       })}
     </Grid>
-
   </Flex>
 </Grid.Item>
 
