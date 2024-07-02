@@ -9,7 +9,7 @@
             <link>https://frankyywestside.up.railway.app/</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Tue, 02 Jul 2024 11:24:20 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 02 Jul 2024 13:21:19 GMT</lastBuildDate>
         <atom:link href="https://frankyywestside.up.railway.app/" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
         <item>
@@ -37,26 +37,28 @@
             <pubDate>Sun, 02 Jul 2023 08:00:00 GMT</pubDate>
         </item>
         <item>
+            <title><![CDATA[Naive Bayes v.s. Logistic Regression: A Deep Dive]]></title>
+            <description><![CDATA[A comparison of two popular classification algorithms!]]></description>
+            <link>https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
+            <pubDate>Sun, 30 Oct 2022 08:00:00 GMT</pubDate>
+        </item>
+        <item>
             <title><![CDATA[Basics on Graphs]]></title>
             <description><![CDATA[Part of the introduction to Algorithms Series]]></description>
             <link>https://frankyywestside.up.railway.app//posts/basics-on-graphs</link>
             <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/basics-on-graphs</guid>
             <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
-            <pubDate>Thu, 03 Mar 2022 08:00:00 GMT</pubDate>
+            <pubDate>Tue, 15 Feb 2022 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[The Future Network: What Do We Want to Build?]]></title>
+            <description><![CDATA[A journey through the technological revolutions and the future of network technology]]></description>
             <link>https://frankyywestside.up.railway.app//posts/the-future-network</link>
             <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/the-future-network</guid>
             <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
-            <pubDate>Tue, 20 Apr 2021 08:00:00 GMT</pubDate>
-        </item>
-        <item>
-            <title><![CDATA[Naive Bayes v.s. Logistic Regression: A Deep Dive]]></title>
-            <link>https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</link>
-            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/naive-bayes-logistic</guid>
-            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
-            <pubDate>Thu, 15 Apr 2021 08:00:00 GMT</pubDate>
+            <pubDate>Thu, 28 Oct 2021 08:00:00 GMT</pubDate>
         </item>
     </channel>
 </rss>
