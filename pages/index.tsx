@@ -1,7 +1,8 @@
+/* eslint-disable react/no-unescaped-entities */
 import {
   styled,
   // Anchor,
-  // Box,
+  Box,
   Button,
   Card,
   Flex,
@@ -12,7 +13,7 @@ import {
   H2,
   H3,
 } from '@maximeheckel/design-system';
-// import { format } from 'date-fns';
+import { format } from 'date-fns';
 import { motion, MotionProps } from 'framer-motion';
 // import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -51,7 +52,7 @@ const WavingHand = () => (
   </motion.div>
 );
 
-// let year = 0;
+let year = 0;
 
 const cardVariants = {
   hover: {
@@ -256,6 +257,83 @@ const IndexPage = (props: Props) => {
             </Grid>
           </Flex>
         </Grid.Item>
+        <Grid.Item col={2} as="section">
+          <Flex alignItems="start" direction="column" gap="5">
+            <H2>Articles </H2>
+            <H3>
+              (Migrating to Node, more articles will be brought back up soon)
+            </H3>
+            <Grid
+              as="ul"
+              css={{
+                margin: 0,
+                padding: 0,
+              }}
+              data-testid="article-list"
+              gapY={1}
+            >
+              {posts.map((post) => {
+                const currentYear = new Date(post.date).getFullYear();
+                let printYear;
+
+                if (currentYear !== year) {
+                  printYear = true;
+                  year = currentYear;
+                } else {
+                  printYear = false;
+                }
+
+                return (
+                  <Box
+                    as="li"
+                    css={{
+                      listStyle: 'none',
+                      cursor: 'pointer',
+                      lineHeight: '1.9',
+                      letterSpacing: '0.3px',
+                    }}
+                    key={post.slug}
+                    data-testid="article-item"
+                  >
+                    {printYear ? (
+                      <Text
+                        as="p"
+                        weight="4"
+                        css={{
+                          padding: 'var(--space-6) 0px',
+                        }}
+                      >
+                        {currentYear}
+                      </Text>
+                    ) : null}
+                    <Link
+                      href={`/posts/${post.slug}/`}
+                      passHref
+                      style={{ textDecoration: 'none', fontWeight: 500 }}
+                    >
+                      <Block data-testid="article-link">
+                        <Text
+                          as="p"
+                          size="1"
+                          variant="tertiary"
+                          weight="3"
+                          css={{
+                            minWidth: '52px',
+                            marginRight: '32px',
+                            marginTop: '2px',
+                          }}
+                        >
+                          {format(new Date(Date.parse(post.date)), 'MMM dd')}
+                        </Text>
+                        <Text weight="3">{post.title}</Text>
+                      </Block>
+                    </Link>
+                  </Box>
+                );
+              })}
+            </Grid>
+          </Flex>
+        </Grid.Item>
       </Grid>
     </Layout>
   );
@@ -276,6 +354,32 @@ const Glow = styled(motion.div, {
   webkitFilter: 'blur(15px)',
   filter: 'blur(15px)',
   borderRadius: 'var(--border-radius-2)',
+});
+
+const Block = styled(Box, {
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'start',
+  width: '100%',
+  borderRadius: 'var(--border-radius-2)',
+  marginLeft: '-8px',
+  padding: '16px 8px',
+  boxShadow: 'none',
+  backgroundColor: 'var(--article-block-background-color, "transparent")',
+  color: 'var(--article-block-color, var(--text-primary))',
+  transition: 'background-color 0.25s, box-shadow 0.25s, color 0.25s',
+
+  '&:focus': {
+    '--article-block-background-color': 'var(--emphasis)',
+    '--article-block-color': 'var(--accent)',
+  },
+
+  '@media (hover: hover) and (pointer: fine)': {
+    '&:hover': {
+      '--article-block-background-color': 'var(--emphasis)',
+      '--article-block-color': 'var(--accent)',
+    },
+  },
 });
 
 export default IndexPage;
