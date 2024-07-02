@@ -9,7 +9,7 @@
             <link>https://frankyywestside.up.railway.app/</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Tue, 02 Jul 2024 13:21:19 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 02 Jul 2024 21:24:17 GMT</lastBuildDate>
         <atom:link href="https://frankyywestside.up.railway.app/" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
         <item>
@@ -19,6 +19,14 @@
             <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/neural-network</guid>
             <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
             <pubDate>Tue, 20 Feb 2024 08:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Options Pricing with Black-Scholes and Gradient Ascent from scratch]]></title>
+            <description><![CDATA[Estimating the price of a call option on Apple stock using the Black-Scholes model and maximum likelihood estimation]]></description>
+            <link>https://frankyywestside.up.railway.app//posts/black-scholes-example</link>
+            <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/black-scholes-example</guid>
+            <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
+            <pubDate>Sat, 20 Jan 2024 08:00:00 GMT</pubDate>
         </item>
         <item>
             <title><![CDATA[Nelson-Seigel 3-factor Model & Forecasting]]></title>
@@ -58,7 +66,7 @@
             <link>https://frankyywestside.up.railway.app//posts/the-future-network</link>
             <guid isPermaLink="false">https://frankyywestside.up.railway.app//posts/the-future-network</guid>
             <dc:creator><![CDATA[Frank Zhu]]></dc:creator>
-            <pubDate>Thu, 28 Oct 2021 08:00:00 GMT</pubDate>
+            <pubDate>Tue, 20 Apr 2021 08:00:00 GMT</pubDate>
         </item>
     </channel>
 </rss>

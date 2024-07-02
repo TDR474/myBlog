@@ -1,0 +1,270 @@
+---
+title: 'Options Pricing with Black-Scholes and Gradient Ascent from scratch'
+subtitle: 'Estimating the price of a call option on Apple stock using the Black-Scholes model and maximum likelihood estimation'
+date: '2024-01-20T08:00:00.000Z'
+updated: '2024-01-20T08:00:00.000Z'
+categories: []
+keywords: ['black-scholes', 'option pricing', 'gradient ascent', 'maximum likelihood estimation', 'finance']
+slug: black-scholes-example
+type: 'blogPost'
+featured: false
+---
+
+As professor Richard Berner once said, "all models are wrong, but some are useful." In financial economics, we have a plethora of models to choose from, each with its own assumptions and limitations.
+
+Last time, we did [credit forecasting with the Nelson-Siegel model](https://frankzhu.io/posts/Nelson-Seigel-3-factor/). This time, we will delve into the world of options pricing. In this post, we will explore the famous Black-Scholes option pricing model to estimate the price of a **call option** on Apple stock.
+
+Along the way, we will cover the application of the following topics:
+- **Black-Scholes Options Pricing**
+- **Maximum Likelihood Estimation via Gradient Ascent**
+- **Closed-Form Estimation of Volatility & Fisher Information Matrix**
+
+Apple stock was selling at 177.70 per share at the close of 10/31/2023. We will use $R$ to calculate the price of a call option with a strike price of 175 assuming an expiration date of 11/30/2023.
+
+## 1. Retrieve Historical Data
+
+```python
+library('quantmod')
+library('maxLik')
+
+ticker <- 'AAPL'
+start_date <- as.Date("2023-03-01")
+end_date <- as.Date("2023-10-31")
+getSymbols(ticker, src = "yahoo", from = start_date, to = end_date)
+apple_data <- as.data.frame(AAPL)
+```
+
+## 2. Parametric Estimation
+
+### 2.1 Log-Likelihood Function
+Let $r_k = \ln(P_k / P_{k-1})$, from Ito's lemma, assuming that they are normally distributed with mean $(\mu_t - \frac{\sigma^2}{2}) \Delta$ and variance $\sigma^2 \Delta$:
+
+$$
+d\ln(P_t) = (\mu_t - \frac{\sigma^2}{2})dt + \sigma dw_t = \alpha dt + \sigma dw_t
+$$
+
+Then for any $r_k$ we have the density function (note that there is no $\pi^2$, which was a typo):
+
+$$
+f(r_k; \alpha, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2\Delta}} \exp\left(-\frac{(r_k - \alpha\Delta)^2}{2\sigma^2\Delta}\right)
+$$
+
+For $n$ observations, the joint likelihood function for continuously compounded returns is:
+
+$$
+L(\alpha, \sigma) = \prod_{k=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2\Delta}} \exp\left(-\frac{(r_k - \alpha\Delta)^2}{2\sigma^2\Delta}\right)
+$$
+
+Taking the natural logarithm of the likelihood function, we convert the product into a sum:
+
+$$
+\ln L(\alpha, \sigma) = -\frac{n}{2} \ln(2\pi \sigma ^2 \Delta) - \frac{1}{2\sigma^2\Delta} \sum_{k=1}^{n} (r_k - \alpha\Delta)^2
+$$
+
+In $R$, we program the **log-likelihood function** as follows:
+
+```python
+# negative log-likelihood function
+log_likelihood <- function(params, log_returns, delta) {
+  alpha <- params[1]
+  sigma <- params[2]
+  n <- length(log_returns)
+  
+  if(sigma <= 0) return(-Inf) # Ensure sigma is positive
+  
+  # Calculate the log likelihood
+  ll <- -n/2 * log(2 * pi * sigma^2 * delta) - 1/(2 * sigma^2 * delta) * sum((log_returns - alpha * delta)^2)
+  return(ll)
+}
+```
+
+### 2.2 Gradient Ascent and Maximum Likelihood
+
+We apply the gradient ascent algorithm to maximize the log-likelihood function by iteratively moving towards the maximum value of the function. The gradient $\nabla L(\alpha,\sigma) = \left[ \frac{\partial L(\alpha,\sigma)}{\partial \alpha}, \frac{L(\alpha,\sigma)}{\partial \sigma} \right]$ are found as follows: 
+
+$$
+\begin{align}
+\frac{\partial L}{\partial \alpha} &= \frac{\partial}{\partial \alpha} \left( -\frac{n}{2} \log(2\pi\sigma^2\Delta) - \frac{1}{2\sigma^2\Delta} \sum_{k=1}^{n} (r_k - \alpha\Delta)^2 \right) \\
+
+& = - \frac{1}{2\sigma^2\Delta}  \sum_{k=1}^{n} \frac{\partial}{\partial \alpha} (r_k - \alpha\Delta)^2 \\
+& = -\frac{1}{\sigma^2}\sum_{k=1}^n (r_k - \alpha \Delta)\\
+
+\frac{\partial L}{\partial \sigma} &= -\frac{n}{2} \frac{\partial}{\partial \sigma} \ln(2\pi \sigma ^2 \Delta) - \frac{\partial}{\partial \sigma} \frac{1}{2\sigma^2\Delta} \sum_{k=1}^{n} (r_k - \alpha\Delta)^2\\
+& = -\frac{n}{\sigma}+\sum_{k=1}^n(r_k- \alpha \Delta)^2
+\end{align}
+$$
+
+```python
+gradient <- function(params, log_returns, delta) {
+  alpha <- params[1]
+  sigma <- params[2]
+  n <- length(log_returns)
+  
+  dL_dalpha <- 1/(sigma^2) * sum(log_returns - alpha * delta)
+  dL_dsigma <- -n/sigma + 1/(delta * sigma^3) * sum((log_returns - alpha * delta)^2)
+  return(c(dL_dalpha, dL_dsigma))
+}
+```
+
+We then apply optimization with initial parameters guesses and proceed with small increments (determined by our learning rate) for large iterations or when the model converges: 
+
+```python title=Gradient Ascent
+# Gradient ascent function (this is gradient ascent for log-likelihood maximization)
+gradient_ascent <- function(log_returns, delta, max_iter = 1000000, learning_rate = 1e-6, tolerance = 0.0001) {
+  # Initial guess
+  params <- c(alpha = mean(log_returns), sigma = sd(log_returns)) 
+  n <- length(log_returns)
+  cost_history <- numeric(max_iter) # To track cost history for debugging
+  
+  for(i in 1:max_iter) {
+    grad <- gradient(params, log_returns, delta)
+    
+    # Update parameters proposal (gradient ascent so we ADD the gradient)
+    new_params <- params + learning_rate * grad
+    
+    # Ensure sigma is not non-positive after the update
+    if (new_params[2] <= 0) {
+      new_params[2] <- max(params[2], 1e-8) # Revert sigma to its previous value or set to a small positive value
+    }
+    
+    params <- new_params
+    
+    # Calculate the likelihood (for monitoring purposes, since we maximize it)
+    likelihood <- log_likelihood(params, log_returns, delta)
+    
+    # Check for convergence 
+    if (all(abs(grad) < tolerance)) {
+      cat("Convergence achieved after", i, "iterations.\n")
+      break
+    }
+  }
+  
+  return(params) # Return parameters and cost history
+}
+
+# Run the gradient ascent
+estimated_params <- gradient_ascent(log_returns, delta)
+# Print the results
+print(estimated_params)
+```
+
+### 2.3 Closed-Form Results
+We check for the robustness of the gradient ascent by comparing the results against the closed-form estimates:
+
+$$
+\begin{align}
+\hat{\alpha} &= \frac{1}{n \Delta}\sum_{k=1}^n r_k\\
+\hat{\sigma} &= \sqrt{\frac{1}{n \Delta}\sum_{k=1}^n (r_k - \hat{\alpha \Delta})^2}
+\end{align}
+$$
+
+And the results match:
+
+```python
+# Calculate alpha_hat and sigma_hat using closed form solutions for verification
+alphahat <- 1/(length(log_returns)*delta) * sum(log_returns)
+sigmahat <- sqrt(1/(length(log_returns)*delta) * sum((log_returns - alphahat*delta)^2))
+
+cat("Closed form alpha_hat:", alphahat, "\n")
+cat("Closed form sigma_hat:", sigmahat, "\n")
+
+
+cat("Predicted alpha:", estimated_params[1], "\n")
+cat("Predicted sigma:", estimated_params[2], "\n")
+```
+
+Where we find closed form $\hat{\alpha}$ and $\hat{\sigma}$ to be $0.01152608$ and $0.04350869$ respectively, which matches the predicted values exactly!
+
+### 2.4 Fisher Information Matrix and Variance of the Estimator
+
+To obtain the asymptotic variance of $\hat{\sigma}$, per Greene, we invert the negative of the Hessian Matrix $H(\hat{\alpha}, \hat{\sigma})$, or observed Fisher Information matrix $\hat{I}(\hat{\alpha}, \hat{\sigma})$ and take the diagonal element of the resulting variance covariance matrix associated with $\hat{\sigma}$:
+
+$$
+\hat{I}(\hat{\alpha}, \hat{\sigma})  =H(\hat{I}) = \begin{bmatrix}
+\frac{\partial^2 \hat{I}}{\partial \hat{\alpha}^2}; \frac{\partial^2 \hat{I}}{\partial \hat{\alpha} \partial \hat{\sigma}} \\
+\frac{\partial^2 \hat{I}}{\partial \hat{\sigma} \partial \hat{\alpha}}; \frac{\partial^2 \hat{I}}{\partial \hat{\sigma}^2}
+\end{bmatrix}
+$$
+
+$$
+= \begin{bmatrix}
+-n \frac{\Delta}{\hat{\sigma}^2} & -2 \hat{\sigma}^{-3} \sum_{k=1}^n (r_k - \hat{\alpha} \Delta) \\
+-2 \hat{\sigma}^{-3} \sum_{k=1}^n (r_k - \hat{\alpha} \Delta) & -3 \frac{1}{\Delta} \sum_{k=1}^n (r_k - \hat{\alpha} \Delta)^2 \hat{\sigma}^{-4} + n \hat{\sigma}^{-2}
+\end{bmatrix}
+$$
+
+```python title=Hessian matrix and positive log-likelihood
+# Define the Hessian matrix for the positive log-likelihood
+hessian_matrix <- function(params, log_returns, delta) {
+  alpha <- params[1]
+  sigma <- params[2]
+  n <- length(log_returns)
+  
+  # The elements of the Hessian matrix
+  d2L_dalpha2 <- -n * delta/ (sigma^2)
+  d2L_dalphadsigma <- -2*(sigma^-3) * sum((log_returns - alpha*delta))
+  d2L_dsigma2 <- -3/delta * sum((log_returns - alpha * delta)^2) * sigma^(-4) + n*sigma^(-2) 
+  
+  # Construct the Hessian matrix
+  hessian <- matrix(c(d2L_dalpha2, d2L_dalphadsigma,
+                      d2L_dalphadsigma, d2L_dsigma2), nrow = 2)
+  return(hessian)
+}
+
+# Calculate the Hessian at the estimated parameters
+obs_hessian <- hessian_matrix(estimated_params, log_returns, delta)
+
+# Invert the Hessian to get the variance-covariance matrix
+var_cov_matrix <- solve(-obs_hessian) # solve() is the base R method for matrix inversion
+
+# Extract the variance of sigma from the matrix
+var_sigma <- var_cov_matrix[2, 2]  # The variance of sigma is in the second row, second column
+
+# Print the estimated variance of sigma
+print('Variance of sigma:')
+print(var_sigma)
+```
+
+```
+"Variance of sigma:  5.633948e-06"
+```
+
+## 3. Call Option Price
+Finally, from Black-Scholes, we can find the European style AAPL call Option to be: 
+
+$$
+C = S_0 N(h_1) - Ke^{-rT} N(h_2)
+$$
+
+```python title=Black-Scholes Call Option Pricing
+# Given values
+P_t <- 177.70  # Current price of the stock
+K <- 175       # Strike price
+r <- 0.05      # Risk-free interest rate (annual)
+sigma <- estimated_params[2]  # Volatility from the given 'estimated_params'
+
+# Time to expiration (1 month assumed as 1/12 of a year)
+T_t <- 21/252
+
+# Black-Scholes formula components
+h1 <- (log(P_t/K) + (r + sigma^2/2) * T_t) / (sigma * sqrt(T_t))
+h2 <- h1 - sigma * sqrt(T_t)
+
+# Using pnorm for the cumulative distribution function of the standard normal distribution
+N_d1 <- pnorm(h1)
+N_d2 <- pnorm(h2)
+
+# Black-Scholes call option price formula
+call_option_price <- P_t * N_d1 - K * exp(-r * T_t) * N_d2
+
+# Output the result
+cat(call_option_price)
+
+cat("Option premium per share:", call_option_price,)
+cat("Option price:", call_option_price * 100,)
+```
+
+```
+"Option premium per share: 3.485288"
+"Option price: 348.5288"
+```

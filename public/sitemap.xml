@@ -47,6 +47,14 @@
 
   <url>
     <loc
+      >https://frankyywestside.up.railway.app/posts/black-scholes-example/</loc
+    >
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc
       >https://frankyywestside.up.railway.app/posts/naive-bayes-logistic/</loc
     >
     <changefreq>daily</changefreq>

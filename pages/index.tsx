@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import {
   styled,
+  Anchor,
   Box,
   Button,
   Card,
@@ -20,7 +21,7 @@ import { getAllFilesFrontMatter } from 'lib/mdx';
 import { Post } from 'types/post';
 import React from 'react';
 import { templateColumnsMedium } from 'styles/grid';
-//x
+
 interface Props {
   posts: Post[];
 }
@@ -99,6 +100,7 @@ const IndexPage = (props: Props) => {
               css={{
                 marginLeft: '-var(--space-3)',
                 marginRight: '-var(--space-3)',
+                flexWrap: 'wrap',
               }}
             >
               <a
@@ -252,91 +254,103 @@ const IndexPage = (props: Props) => {
           </Flex>
         </Grid.Item>
         <Grid.Item col={2} as="section">
-  <Flex alignItems="start" direction="column" gap="5">
-    <H2>Articles </H2>
-    <H3>(Migrating to Node, more articles will be brought back up soon)</H3>
-    <Grid
-      as="ul"
-      css={{
-        margin: 0,
-        padding: 0,
-      }}
-      data-testid="article-list"
-      gapY={1}
-    >
-      {posts.map((post, index) => {
-        console.log(`Processing post #${index}:`, post);
+          <Flex alignItems="start" direction="column" gap="5">
+            <H2>Articles</H2>
+            <H3>(Migrating to Node, more articles will be brought back up soon)</H3>
+            <Grid
+              as="ul"
+              css={{
+                margin: 0,
+                padding: 0,
+                overflowX: 'hidden',
+              }}
+              data-testid="article-list"
+              gapY={1}
+            >
+              {posts.map((post, index) => {
+                console.log(`Processing post #${index}:`, post);
 
-        let currentYear;
-        try {
-          currentYear = new Date(post.date).getFullYear();
-          console.log(`Parsed year for post #${index}: ${currentYear}`);
-        } catch (error) {
-          console.error(`Invalid date format in post #${index}:`, post.date, error);
-          return null;
-        }
+                let currentYear;
+                try {
+                  currentYear = new Date(post.date).getFullYear();
+                  console.log(`Parsed year for post #${index}: ${currentYear}`);
+                } catch (error) {
+                  console.error(`Invalid date format in post #${index}:`, post.date, error);
+                  return null;
+                }
 
-        let printYear;
+                let printYear;
 
-        if (currentYear !== year) {
-          printYear = true;
-          year = currentYear;
-          console.log(`New year detected for post #${index}, printing year: ${currentYear}`);
-        } else {
-          printYear = false;
-        }
+                if (currentYear !== year) {
+                  printYear = true;
+                  year = currentYear;
+                  console.log(`New year detected for post #${index}, printing year: ${currentYear}`);
+                } else {
+                  printYear = false;
+                }
 
-        return (
-          <Box
-            as="li"
-            css={{
-              listStyle: 'none',
-              cursor: 'pointer',
-              lineHeight: '1.9',
-              letterSpacing: '0.3px',
-            }}
-            key={post.slug}
-            data-testid="article-item"
-          >
-            {printYear ? (
-              <Text
-                as="p"
-                weight="4"
-                css={{
-                  padding: 'var(--space-6) 0px',
-                }}
-              >
-                {currentYear}
-              </Text>
-            ) : null}
-            <Link href={`/posts/${post.slug}/`} legacyBehavior>
-              <a style={{ textDecoration: 'none', fontWeight: 500 }}>
-                <Block data-testid="article-link">
-                  <Text
-                    as="p"
-                    size="1"
-                    variant="tertiary"
-                    weight="3"
+                return (
+                  <Box
+                    as="li"
                     css={{
-                      minWidth: '52px',
-                      marginRight: '32px',
-                      marginTop: '2px',
+                      listStyle: 'none',
+                      cursor: 'pointer',
+                      lineHeight: '1.9',
+                      letterSpacing: '0.3px',
                     }}
+                    key={post.slug}
+                    data-testid="article-item"
                   >
-                    {format(new Date(Date.parse(post.date)), 'MMM dd')}
-                  </Text>
-                  <Text weight="3">{post.title}</Text>
-                </Block>
-              </a>
-            </Link>
-          </Box>
-        );
-      })}
-    </Grid>
-  </Flex>
-</Grid.Item>
-
-
+                    {printYear ? (
+                      <Text
+                        as="p"
+                        weight="4"
+                        css={{
+                          padding: 'var(--space-6) 0px',
+                        }}
+                      >
+                        {currentYear}
+                      </Text>
+                    ) : null}
+                    <Link href={`/posts/${post.slug}/`} legacyBehavior>
+                      <a style={{ textDecoration: 'none', fontWeight: 500 }}>
+                        <Block data-testid="article-link">
+                          <Text
+                            as="p"
+                            size="1"
+                            variant="tertiary"
+                            weight="3"
+                            css={{
+                              minWidth: '52px',
+                              marginRight: '32px',
+                              marginTop: '2px',
+                            }}
+                          >
+                            {format(new Date(Date.parse(post.date)), 'MMM dd')}
+                          </Text>
+                          <Text weight="3">{post.title}</Text>
+                        </Block>
+                      </a>
+                    </Link>
+                  </Box>
+                );
+              })}
+            </Grid>
+            <Card css={{ marginBottom: 'var(--space-9)', width: '100%' }}>
+              <Card.Body
+                alignItems="start"
+                as={Flex}
+                direction="column"
+                gap="5"
+              >
+                <H3>#BlackLivesMatter</H3>
+                <Anchor underline href="https://blacklivesmatters.carrd.co/">
+                  Click here to find out how you can help.
+                </Anchor>
+              </Card.Body>
+            </Card>
+          </Flex>
+        </Grid.Item>
       </Grid>
     </Layout>
   );

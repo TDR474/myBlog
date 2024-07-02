@@ -5,6 +5,7 @@ const { serialize } = require('next-mdx-remote/serialize');
 const rehypeKatex = require('rehype-katex');
 const remarkMath = require('remark-math');
 import rehypeKatexSvelte from 'https://cdn.skypack.dev/rehype-katex-svelte';
+import rehypeMathjax from 'rehype-mathjax';
 const GPT3Tokenizer = require('gpt3-tokenizer');
 const MAX_TOKEN = 100;
 
@@ -117,7 +118,7 @@ async function processMdxFile(filePath) {
         remarkPlugins: [remarkMath],
         rehypePlugins: [
           [
-            rehypeKatex
+            rehypeMathjax
           ],
         ],
       },

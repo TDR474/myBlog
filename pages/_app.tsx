@@ -9,11 +9,13 @@ import { DefaultSeo } from '@core/components/Seo';
 import { Analytics } from '@vercel/analytics/react';
 import 'styles/global.css';
 import 'styles/font.css';
+// import { useEffect, useState } from 'react'; 
 
 const App = ({ Component, pageProps }: AppProps) => {
   globalStyles();
 
   return (
+    <div suppressHydrationWarning>
     <ThemeProvider>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -28,6 +30,7 @@ const App = ({ Component, pageProps }: AppProps) => {
       </Tooltip.Provider>
       <Analytics />
     </ThemeProvider>
+    </div>
   );
 };
 export default App;
