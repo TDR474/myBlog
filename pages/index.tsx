@@ -14,15 +14,12 @@ import {
 } from '@maximeheckel/design-system';
 import { format } from 'date-fns';
 import { motion, MotionProps } from 'framer-motion';
-// import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Layout from '@core/layout';
 import { getAllFilesFrontMatter } from 'lib/mdx';
 import { Post } from 'types/post';
 import React from 'react';
 import { templateColumnsMedium } from 'styles/grid';
-
-// const NewsletterForm = dynamic(() => import('@core/components/NewsletterForm'));
 
 interface Props {
   posts: Post[];
@@ -74,8 +71,6 @@ const glowVariants = {
 
 const IndexPage = (props: Props) => {
   const { posts } = props;
-
-  console.log(posts); // Debugging: Check the structure of posts data
 
   return (
     <Layout footer header headerProps={{ offsetHeight: 256 }}>
