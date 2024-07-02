@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import {
   styled,
-  // Anchor,
   Box,
   Button,
   Card,
@@ -75,6 +74,8 @@ const glowVariants = {
 
 const IndexPage = (props: Props) => {
   const { posts } = props;
+
+  console.log(posts); // Debugging: Check the structure of posts data
 
   return (
     <Layout footer header headerProps={{ offsetHeight: 256 }}>
@@ -164,96 +165,94 @@ const IndexPage = (props: Props) => {
             >
               {posts
                 .filter((post) => post.featured)
-                .map((post) => {
-                  return (
-                    <motion.li
+                .map((post) => (
+                  <motion.li
+                    style={{
+                      position: 'relative',
+                      marginLeft: '-var(--space-1)',
+                      marginRight: '-var(--space-1)',
+                      listStyle: 'none',
+                      cursor: 'pointer',
+                      marginBottom: 'calc(1.45rem / 2)',
+                      lineHeight: '1.9',
+                      letterSpacing: '0.3px',
+                    }}
+                    key={post.slug}
+                    data-testid="featured-article-item"
+                    initial="initial"
+                    whileHover="hover"
+                  >
+                    <Link
+                      href={`/posts/${post.slug}/`}
+                      passHref
                       style={{
-                        position: 'relative',
-                        marginLeft: '-var(--space-1)',
-                        marginRight: '-var(--space-1)',
-                        listStyle: 'none',
-                        cursor: 'pointer',
-                        marginBottom: 'calc(1.45rem / 2)',
-                        lineHeight: '1.9',
-                        letterSpacing: '0.3px',
+                        textDecoration: 'none',
+                        color: 'var(--text-secondary)',
                       }}
-                      key={post.slug}
-                      data-testid="featured-article-item"
-                      initial="initial"
-                      whileHover="hover"
                     >
-                      <Link
-                        href={`/posts/${post.slug}/`}
-                        passHref
-                        style={{
-                          textDecoration: 'none',
-                          color: 'var(--text-secondary)',
+                      <Glow
+                        css={{
+                          background: post.colorFeatured,
                         }}
-                      >
-                        <Glow
-                          css={{
-                            background: post.colorFeatured,
-                          }}
-                          variants={glowVariants}
-                          transition={{
-                            type: 'tween',
-                            ease: 'easeOut',
-                            duration: 0.4,
-                          }}
-                        />
-                        <Flex
-                          css={{
-                            height: '95%',
-                            width: '105%',
-                            position: 'absolute',
-                            borderRadius: 'var(--border-radius-2)',
-                            top: '50%',
-                            left: '50%',
-                            background: 'var(--background)',
-                            transform: 'translateY(-50%) translateX(-50%)',
-                            filter: 'blur(20px)',
-                            transition: '0.5s',
+                        variants={glowVariants}
+                        transition={{
+                          type: 'tween',
+                          ease: 'easeOut',
+                          duration: 0.4,
+                        }}
+                      />
+                      <Flex
+                        css={{
+                          height: '95%',
+                          width: '105%',
+                          position: 'absolute',
+                          borderRadius: 'var(--border-radius-2)',
+                          top: '50%',
+                          left: '50%',
+                          background: 'var(--background)',
+                          transform: 'translateY(-50%) translateX(-50%)',
+                          filter: 'blur(20px)',
+                          transition: '0.5s',
 
-                            '@media(max-width: 700px)': {
-                              display: 'none',
-                            },
-                          }}
-                        />
-                        <Card<MotionProps>
-                          as={motion.div}
-                          variants={cardVariants}
-                          transition={{
-                            type: 'tween',
-                            ease: 'easeOut',
-                            duration: 0.4,
-                          }}
-                          depth={1}
-                        >
-                          <Card.Body>
-                            <H3
-                              gradient
-                              css={{
-                                marginBottom: '8px',
-                                backgroundImage: post.colorFeatured!,
-                              }}
-                            >
-                              {post.title}
-                            </H3>
-                            <Text
-                              as="p"
-                              css={{ marginBottom: '0px' }}
-                              size="2"
-                              weight="3"
-                              variant="tertiary"
-                            >
-                              {post.subtitle}
-                            </Text>
-                          </Card.Body>
-                        </Card>
-                      </Link>
-                    </motion.li>
-                  );
-                })}
+                          '@media(max-width: 700px)': {
+                            display: 'none',
+                          },
+                        }}
+                      />
+                      <Card<MotionProps>
+                        as={motion.div}
+                        variants={cardVariants}
+                        transition={{
+                          type: 'tween',
+                          ease: 'easeOut',
+                          duration: 0.4,
+                        }}
+                        depth={1}
+                      >
+                        <Card.Body>
+                          <H3
+                            gradient
+                            css={{
+                              marginBottom: '8px',
+                              backgroundImage: post.colorFeatured!,
+                            }}
+                          >
+                            {post.title}
+                          </H3>
+                          <Text
+                            as="p"
+                            css={{ marginBottom: '0px' }}
+                            size="2"
+                            weight="3"
+                            variant="tertiary"
+                          >
+                            {post.subtitle}
+                          </Text>
+                        </Card.Body>
+                      </Card>
+                    </Link>
+                  </motion.li>
+                ))}
             </Grid>
           </Flex>
         </Grid.Item>
