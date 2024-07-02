@@ -252,82 +252,87 @@ const IndexPage = (props: Props) => {
           </Flex>
         </Grid.Item>
         <Grid.Item col={2} as="section">
-          <Flex alignItems="start" direction="column" gap="5">
-            <H2>Articles </H2>
-            <H3>
-              (Migrating to Node, more articles will be brought back up soon)
-            </H3>
-            <Grid
-              as="ul"
-              css={{
-                margin: 0,
-                padding: 0,
-              }}
-              data-testid="article-list"
-              gapY={1}
-            >
-              {posts.map((post) => {
-                const currentYear = new Date(post.date).getFullYear();
-                let printYear;
+  <Flex alignItems="start" direction="column" gap="5">
+    <H2>Articles </H2>
+    <Grid
+      as="ul"
+      css={{
+        margin: 0,
+        padding: 0,
+      }}
+      data-testid="article-list"
+      gapY={1}
+    >
+      {posts.map((post) => {
+        let currentYear;
+        try {
+          currentYear = new Date(post.date).getFullYear();
+        } catch (error) {
+          console.error("Invalid date format in post:", post);
+          return null;
+        }
 
-                if (currentYear !== year) {
-                  printYear = true;
-                  year = currentYear;
-                } else {
-                  printYear = false;
-                }
+        let printYear;
 
-                return (
-                  <Box
-                    as="li"
+        if (currentYear !== year) {
+          printYear = true;
+          year = currentYear;
+        } else {
+          printYear = false;
+        }
+
+        return (
+          <Box
+            as="li"
+            css={{
+              listStyle: 'none',
+              cursor: 'pointer',
+              lineHeight: '1.9',
+              letterSpacing: '0.3px',
+            }}
+            key={post.slug}
+            data-testid="article-item"
+          >
+            {printYear ? (
+              <Text
+                as="p"
+                weight="4"
+                css={{
+                  padding: 'var(--space-6) 0px',
+                }}
+              >
+                {currentYear}
+              </Text>
+            ) : null}
+            <Link href={`/posts/${post.slug}/`} legacyBehavior>
+              <a style={{ textDecoration: 'none', fontWeight: 500 }}>
+                <Block data-testid="article-link">
+                  <Text
+                    as="p"
+                    size="1"
+                    variant="tertiary"
+                    weight="3"
                     css={{
-                      listStyle: 'none',
-                      cursor: 'pointer',
-                      lineHeight: '1.9',
-                      letterSpacing: '0.3px',
+                      minWidth: '52px',
+                      marginRight: '32px',
+                      marginTop: '2px',
                     }}
-                    key={post.slug}
-                    data-testid="article-item"
                   >
-                    {printYear ? (
-                      <Text
-                        as="p"
-                        weight="4"
-                        css={{
-                          padding: 'var(--space-6) 0px',
-                        }}
-                      >
-                        {currentYear}
-                      </Text>
-                    ) : null}
-                    <Link
-                      href={`/posts/${post.slug}/`}
-                      passHref
-                      style={{ textDecoration: 'none', fontWeight: 500 }}
-                    >
-                      <Block data-testid="article-link">
-                        <Text
-                          as="p"
-                          size="1"
-                          variant="tertiary"
-                          weight="3"
-                          css={{
-                            minWidth: '52px',
-                            marginRight: '32px',
-                            marginTop: '2px',
-                          }}
-                        >
-                          {format(new Date(Date.parse(post.date)), 'MMM dd')}
-                        </Text>
-                        <Text weight="3">{post.title}</Text>
-                      </Block>
-                    </Link>
-                  </Box>
-                );
-              })}
-            </Grid>
-          </Flex>
-        </Grid.Item>
+                    {format(new Date(Date.parse(post.date)), 'MMM dd')}
+                  </Text>
+                  <Text weight="3">{post.title}</Text>
+                </Block>
+              </a>
+            </Link>
+          </Box>
+        );
+      })}
+    </Grid>
+
+  </Flex>
+</Grid.Item>
+
+
       </Grid>
     </Layout>
   );
