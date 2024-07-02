@@ -51,7 +51,7 @@ const WavingHand = () => (
   </motion.div>
 );
 
-let year = 0;
+// let year = 0;
 
 const cardVariants = {
   hover: {
