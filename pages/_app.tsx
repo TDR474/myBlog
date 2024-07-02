@@ -11,7 +11,7 @@ import 'styles/global.css';
 import 'styles/font.css';
 import 'katex/dist/katex.min.css';
 // import Layout from 'core/components/Layout'; // Import your custom layout
-
+// testing
 const App = ({ Component, pageProps }: AppProps) => {
   globalStyles();
 
