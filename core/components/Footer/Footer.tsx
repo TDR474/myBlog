@@ -72,7 +72,7 @@ const Footer = () => (
             variant="primary"
             weight="3"
           >
-            © {new Date().getFullYear()} Frank Zhu ——{' '}
+            © 2024 Frank Zhu ——{' '}
             <EM size="1">New York</EM>
           </Text>
           <Logo alt="Frank's logo" size={35} />

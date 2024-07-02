@@ -6,7 +6,7 @@ import siteConfig from '../../../config/site';
 interface Props {
   title?: string;
 }
-
+const june30Date = new Date('2023-06-30T00:00:00Z').toISOString();
 const DefaultSeo = (props: Props) => (
   <React.Fragment>
     <NextDefaultSeo
@@ -37,11 +37,13 @@ const DefaultSeo = (props: Props) => (
     <Head>
       <meta name="googlebot" content="index,follow" />
     </Head>
+    
+
     <ArticleJsonLd
       type="Blog"
       authorName={siteConfig.author}
-      dateModified={new Date().toISOString()}
-      datePublished={new Date().toISOString()}
+      dateModified={june30Date}
+      datePublished={june30Date}
       description={siteConfig.description}
       images={[siteConfig.image]}
       title={siteConfig.title}
