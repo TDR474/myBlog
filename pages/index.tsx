@@ -1,6 +1,7 @@
-import { Flex, Grid, H2, Text } from '@maximeheckel/design-system';
+import { Flex, Grid, H2, Text, Button, Icon, VisuallyHidden } from '@maximeheckel/design-system';
 import { motion } from 'framer-motion';
 import Layout from '@core/layout';
+// import Link from 'next/link';
 
 const WavingHand = () => (
   <motion.div
@@ -46,7 +47,57 @@ const IndexPage = () => (
             concentration in Artificial Intelligence.
           </Text>
         </H2>
-      </Flex>
+        <Flex
+              gap={4}
+              css={{
+                marginLeft: '-var(--space-3)',
+                marginRight: '-var(--space-3)',
+              }}
+            >
+              <a
+                href="https://www.linkedin.com/in/frank-zhu-55474914b/"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button
+                  variant="secondary"
+                  endIcon={<Icon.External size="4" />}
+                >
+                  About me
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my LinkedIn Profile.
+                </VisuallyHidden>
+              </a>
+              <a
+                href="https://github.com/TDR474"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button variant="secondary" endIcon={<Icon.Github size="4" />}>
+                  @TDR474
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my Github profile page
+                </VisuallyHidden>
+              </a>
+              <a
+                href="https://lucidity-demo-production.up.railway.app/"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button
+                  variant="secondary"
+                  endIcon={<Icon.Portfolio size="4" />}
+                >
+                  Crypto30Index
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my Github profile page
+                </VisuallyHidden>
+              </a>
+            </Flex>
+          </Flex>
     </Grid>
   </Layout>
 );
