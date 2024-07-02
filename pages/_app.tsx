@@ -10,7 +10,7 @@ import { Analytics } from '@vercel/analytics/react';
 import 'styles/global.css';
 import 'styles/font.css';
 import 'katex/dist/katex.min.css';
-import Layout from 'core/components/Layout'; // Import your custom layout
+// import Layout from 'core/components/Layout'; // Import your custom layout
 
 const App = ({ Component, pageProps }: AppProps) => {
   globalStyles();
@@ -33,9 +33,9 @@ const App = ({ Component, pageProps }: AppProps) => {
       </Head>
       <DefaultSeo />
       <Tooltip.Provider>
-        <Layout>
+        {/* <Layout> */}
           <Component {...pageProps} />
-        </Layout>
+        {/* </Layout> */}
       </Tooltip.Provider>
       <Analytics />
     </ThemeProvider>

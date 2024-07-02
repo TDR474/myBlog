@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unescaped-entities */
-// @ts-nocheck
 import {
   styled,
   Anchor,
@@ -11,13 +10,12 @@ import {
   Icon,
   Text,
   VisuallyHidden,
-  H1,
   H2,
   H3,
 } from '@maximeheckel/design-system';
 import { format } from 'date-fns';
 import { motion, MotionProps } from 'framer-motion';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Layout from '@core/layout';
 import { getAllFilesFrontMatter } from 'lib/mdx';
@@ -25,7 +23,7 @@ import { Post } from 'types/post';
 import React from 'react';
 import { templateColumnsMedium } from 'styles/grid';
 
-const NewsletterForm = dynamic(() => import('@core/components/NewsletterForm'));
+// const NewsletterForm = dynamic(() => import('@core/components/NewsletterForm'));
 
 interface Props {
   posts: Post[];

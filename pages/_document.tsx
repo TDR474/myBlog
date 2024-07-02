@@ -1,4 +1,4 @@
-//@ts-nocheck
+
 import { getCssText } from '@maximeheckel/design-system';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import Script from 'next/script';
@@ -153,8 +153,7 @@ class MyDocument extends Document {
             defer 
             src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" 
             integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" 
-            crossOrigin="anonymous"
-            onLoad="renderMathInElement(document.body);"></script>
+            crossOrigin="anonymous"></script>
           {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script> */}
         </Head>
