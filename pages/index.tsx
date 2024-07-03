@@ -150,7 +150,7 @@ const IndexPage = (props: Props) => {
         </Grid.Item>
         <Grid.Item as="section" col={2}>
           <Flex alignItems="start" direction="column" gap="5">
-            <H2>Featured</H2>
+            <H2>Guides</H2>
             <Grid
               as="ul"
               css={{
