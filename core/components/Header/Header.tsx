@@ -52,12 +52,12 @@ const Header = (props: HeaderProps) => {
       <a
         className="hidden-layout h-card"
         data-testid="twitter-link"
-        aria-label="Follow me on Twitter"
-        title="Follow me on Twitter"
+        aria-label="Connect with me on LinkedIn"
+        title="Connect with me on LinkedIn"
         rel="me"
-        href="https://twitter.com/MaximeHeckel"
+        href="https://www.linkedin.com/in/frank-zhu-55474914b/"
       >
-        @MaximeHeckel
+        @frankzhu
       </a>
       <Search open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <HeaderWrapper
