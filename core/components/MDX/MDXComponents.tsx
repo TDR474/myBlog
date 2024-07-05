@@ -21,6 +21,7 @@ import Callout from '@core/components/Callout';
 import Code from '@core/components/Code';
 import Fullbleed from '@core/components/Fullbleed';
 import VideoPlayer from '@core/components/VideoPlayer';
+import HyperplaneChart from '@core/components/HyperplaneChart';
 
 // MDX only components
 import Image from './Image';
@@ -29,6 +30,7 @@ import Image from './Image';
 const ClipboardAnimationDetails = dynamic(
   () => import('./Widgets/GuideToFramerMotion/ClipboardAnimationDetails')
 );
+
 const HeartRateWidget = dynamic(() => import('./Widgets/HeartRateWidget'));
 const SEOStats = dynamic(() => import('./Widgets/SEOStats'));
 const FramerMotionPropagation = dynamic(
@@ -240,6 +242,7 @@ const customComponents = {
   PaletteGenerator,
   ThemePicker,
   HeartRateWidget,
+  HyperplaneChart,
   Card,
   CardBody: Card.Body,
   ScrollSpyWidget,

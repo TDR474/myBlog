@@ -21,7 +21,7 @@ import { getAllFilesFrontMatter } from 'lib/mdx';
 import { Post } from 'types/post';
 import React from 'react';
 import { templateColumnsMedium } from 'styles/grid';
-
+//import HyperplaneChart from '@core/components/HyperplaneChart';
 interface Props {
   posts: Post[];
 }

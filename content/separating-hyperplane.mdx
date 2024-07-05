@@ -1,0 +1,52 @@
+---
+title: 'Why is the Weight Vector orthgonal to the Separating Hyperplane? '
+subtitle: Visualizing separability in high-dimensional space
+date: '2024-02-22T08:00:00.000Z'
+updated: '2024-02-24T08:00:00.000Z'
+categories: []
+keywords: ['machine learning', 'hyperplane', 'separability', 'orthogonality']
+slug: separating-hyperplane
+type: 'blogPost'
+featured: false
+---
+
+## What is a Hyperplane?
+In a $N$-dimensional space, a **hyperplane** is a flat affine subspace of dimension $N-1$. By affine, we
+just mean that it doesn't necessarily pass through the origin. We are all familar with a hyperplane in 2D,
+which is just a line. In mathematical lingo, we call it a flat one-dimensional subspace. In 3D, a hyperplane
+is a flat two-dimensional subspace, which is just a plane. Let's visualize a hyperplane in 3D space, where the red line is the weight vector:
+
+<HyperplaneChart title="Separating hyperplane in 3D spaces" />
+
+Mathematically, a hyperplane is defined by the equation:
+$$
+\begin{align}
+\beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \beta_N x_N = 0
+\end{align}
+$$
+
+where $\beta_0, \beta_1, \ldots, \beta_N$ are the coefficients of the hyperplane and $x_1, x_2, \ldots, x_N$ are the features. When we say 
+"defines", we mean that any point $x = (x_1, x_2, \ldots, x_N)$ that satisfies this equation lies on the hyperplane. A simple 2D example: 
+if we have a line $x_2 = 2x_1 + 1$, we can rewrite it as $2x_1 - 1*x_2 + 1 = 0$. Any point $(x_1, x_2)$ that satisfies this equation lies on the line.
+
+Now interestingly, the **weight vector** of the hyperplane is orthogonal to the hyperplane. I have seen numerous [discussions](https://stackoverflow.com/questions/10177330/why-is-weight-vector-orthogonal-to-decision-plane-in-neural-networks) 
+on why this is the case, but I don't think they are quite doing the job/as intuitive as they could be.
+
+## Orthogonality
+So why is the weight vector orthogonal to the hyperplane? Note we can generally write the equation of a hyperplane as:
+
+$$
+W^T X= 0
+$$
+
+Where $W= (\beta_1, \beta_2, \ldots, \beta_N)$ is the weight vector, and $X = (x_1, x_2, \ldots, x_N)$ is the feature vector.
+
+Now by the dot product definition of vectors:
+
+$$
+W^T X = W \cdot x = ||W||  ||X|| \cos(\theta)
+$$
+
+But notice that in defining our hyperplane $W^T X= 0$, so $||W|| ||X|| \cos(\theta) = 0$. But we know that $||W||$ and $||X||$ are always positive, so the only way for the dot product to be zero is if $\cos(\theta) = 0$, which means $\theta = 90^\circ$.
+
+Since the hyperplane passes through the $X$ only, we can say that the weight vector is orthogonal to the hyperplane.

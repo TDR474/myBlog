@@ -41,6 +41,7 @@ import React from 'react';
 import { NewTweet } from 'types/tweet';
 import { templateColumnsMedium } from 'styles/grid';
 import BeforeAfterImage from '@core/components/BeforeAfterImage';
+// import HyperplaneChart from '@core/components/HyperplaneChart';
 
 const SandpackExample = dynamic(
   () => import('@core/components/MDX/Widgets/WaveAnimation/Sandpack')

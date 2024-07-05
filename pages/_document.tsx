@@ -127,12 +127,12 @@ class MyDocument extends Document {
             rel="pingback"
             href="https://webmention.io/blog.maximeheckel.com/xmlrpc"
           />
-          {/* <link
+          <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
             integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"
             crossOrigin="anonymous"
-          /> */}
+          /> 
           {/* <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.0/themes/prism.min.css"
@@ -143,17 +143,17 @@ class MyDocument extends Document {
           />
           <meta charSet="utf-8" />
           <meta httpEquiv="x-ua-compatible" content="ie=edge" />
-          {/* <script 
+          <script 
             defer 
             src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" 
             integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" 
             crossOrigin="anonymous">
-          </script> */}
-          {/* <script 
+          </script>
+          <script 
             defer 
             src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" 
             integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" 
-            crossOrigin="anonymous"></script> */}
+            crossOrigin="anonymous"></script>
           {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script> */}
         </Head>

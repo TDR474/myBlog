@@ -68,6 +68,14 @@
   </url>
 
   <url>
+    <loc
+      >https://frankyywestside.up.railway.app/posts/separating-hyperplane/</loc
+    >
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://frankyywestside.up.railway.app/posts/the-future-network/</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
