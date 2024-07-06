@@ -18,6 +18,19 @@ const App = ({ Component, pageProps }: AppProps) => {
     <div suppressHydrationWarning>
     <ThemeProvider>
       <Head>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-DYS0CB5YDP"></script>
+
+      <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                gtag('config', 'G-DYS0CB5YDP');
+              `,
+            }}
+          />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <meta
           name="google-site-verification"

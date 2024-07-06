@@ -8,6 +8,7 @@ class MyDocument extends Document {
     return (
       <Html lang="en" className="maximeheckel-light">
         <Head>
+
           <link
             rel="preload"
             href="/fonts/inter-var-latin.woff2"
@@ -156,6 +157,7 @@ class MyDocument extends Document {
             crossOrigin="anonymous"></script>
           {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.js"></script> */}
+
         </Head>
         <body>
           <Script src="public/sw.js"></Script>

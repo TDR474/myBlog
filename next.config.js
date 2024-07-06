@@ -119,7 +119,7 @@ module.exports = withBundleAnalyzer(
 
 const ContentSecurityPolicy = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com https://cdn.jsdelivr.net https://cdn.vercel-insights.com/ https://cdnjs.cloudflare.com; 
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com https://cdn.jsdelivr.net https://cdn.vercel-insights.com/ https://cdnjs.cloudflare.com https://www.googletagmanager.com; 
     child-src *.youtube.com *.google.com *.twitter.com *.codesandbox.io;
     style-src 'self' 'unsafe-inline' *.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/;
     img-src * blob: data:;
