@@ -11,12 +11,12 @@ featured: false
 ---
 
 ## What is a Hyperplane?
-In a $N$-dimensional space, a **hyperplane** is a flat affine subspace of dimension $N-1$. By affine, we
-just mean that it doesn't necessarily pass through the origin. We are all familar with a hyperplane in 2D,
-which is just a line. In mathematical lingo, we call it a flat one-dimensional subspace. In 3D, a hyperplane
-is a flat two-dimensional subspace, which is just a plane. Let's visualize a hyperplane in 3D space, where the red line is the weight vector:
+In a $N$-dimensional space, a **hyperplane** is a flat affine subspace of dimension $N-1$. The keyword here is **affine**, for reasons we will
+discuss soon. For now, just take it to mean that we can move the origins around.
 
-<HyperplaneChart title="Separating hyperplane in 3D spaces" />
+We are all familar with a hyperplane in 2D,
+which is just a line. In mathematical lingo, we call it a flat one-dimensional subspace. In 3D, a hyperplane
+is a flat two-dimensional subspace, which is just a plane. 
 
 Mathematically, a hyperplane is defined by the equation:
 $$
@@ -27,26 +27,60 @@ $$
 
 where $\beta_0, \beta_1, \ldots, \beta_N$ are the coefficients of the hyperplane and $x_1, x_2, \ldots, x_N$ are the features. When we say 
 "defines", we mean that any point $x = (x_1, x_2, \ldots, x_N)$ that satisfies this equation lies on the hyperplane. A simple 2D example: 
-if we have a line $x_2 = 2x_1 + 1$, we can rewrite it as $2x_1 - 1*x_2 + 1 = 0$. Any point $(x_1, x_2)$ that satisfies this equation lies on the line.
+if we have a line $x_2 = 2x_1 + 1$, we can rewrite it as $2x_1 - x_2 + 1 = 0$. Any point $(x_1, x_2)$ that satisfies this equation lies on the line.
+
+Let's visualize a hyperplane in 3D space with random $\beta$s and $x$s. The red line is the weight vector $[1, 2, 2]$ and the green line is the feature vector $[1, 1, 1]$::
+
+<HyperplaneChart title="Separating hyperplane in 3D spaces" />
 
 Now interestingly, the **weight vector** of the hyperplane is orthogonal to the hyperplane. I have seen numerous [discussions](https://stackoverflow.com/questions/10177330/why-is-weight-vector-orthogonal-to-decision-plane-in-neural-networks) 
-on why this is the case, but I don't think they are quite doing the job/as intuitive as they could be.
+on why this is the case, but I don't think they are quite doing a rigorous job/as intuitive as they could be.
 
-## Orthogonality
+## It's Affine, not Linear
 So why is the weight vector orthogonal to the hyperplane? Note we can generally write the equation of a hyperplane as:
 
 $$
-W^T X= 0
+W^T X + b = 0
 $$
 
 Where $W= (\beta_1, \beta_2, \ldots, \beta_N)$ is the weight vector, and $X = (x_1, x_2, \ldots, x_N)$ is the feature vector.
 
-Now by the dot product definition of vectors:
+The interesting part here is $b$, the **bias** term. This seemingly innocuous term is what makes the hyperplane **affine**, and not **linear**.
+
+To see what a rigorous definition of hyperplane is needed here, let's first follow [Stack Exchange](https://datascience.stackexchange.com/questions/6054/in-svm-algorithm-why-vector-w-is-orthogonal-to-the-separating-hyperplane)'s answers.
+Suppose we have two points defined on the hyperplane, $X_1$ and $X_2$, which means:
 
 $$
-W^T X = W \cdot x = ||W||  ||X|| \cos(\theta)
+\begin{align}
+W^T X_1 + b = 0 \\
+W^T X_2 + b = 0
+\end{align}
 $$
 
-But notice that in defining our hyperplane $W^T X= 0$, so $||W|| ||X|| \cos(\theta) = 0$. But we know that $||W||$ and $||X||$ are always positive, so the only way for the dot product to be zero is if $\cos(\theta) = 0$, which means $\theta = 90^\circ$.
+Subtracting these two equations gives us $W^T (X_1 - X_2) = 0$. **But note that** $W^T (X_1 - X_2) = 0$ **does not lie on the hyperplane as the answers suggested**! To see why,
+let's visualize this on our cloud of points again, but this time with a new blue line for $X_2$, and also the purple line $X_3 = X_1 - X_2$:
 
-Since the hyperplane passes through the $X$ only, we can say that the weight vector is orthogonal to the hyperplane.
+<HyperplaneChart2 title="Incorrect Visualization"/>
+
+
+Noticed anything strange? $X_3$ does not lie on the hyperplane! The reason for that is for vectors $X_1$ and $X_2$, $X_3 = X_1 - X_2$ is in the same **vector space**, but not the same **affine space**.
+
+
+Let's reconsider the problem with rigorous setups. We have vectors $W, X_1, X_2$ in vector space $V$.
+$W^T X_1$ and $W^T X_2$ are linear transformation defined on $V$. The moment we include $b$, we have the affine transformation $W^T X + b$ defined on the affine space $A$. And in affine space,
+**we don't consider the origin as the head** of $X_3$.
+
+<HyperplaneChart3 />
+
+## Final Proof
+Now by the dot product definition of vectors, with a new vector $X3$:
+
+$$
+W^T X_3 = W \cdot X_3 = ||W|| ||X_3|| \cos(\theta)
+$$
+
+But notice that in defining our hyperplane $W^T X_3= 0$, so $||W|| ||X|| \cos(\theta) = 0$. If $b = 0$, we know that $||W||$ and $||X_3||$ are always positive, so the only way for the dot product to be zero is if $\cos(\theta) = 0$, which means $\theta = 90^\circ$.
+Note if $b \neq 0$, note it does not mean that $ W \cdot X != 0$ --- **it is a separate term that shifts the hyperplane**. The orthogonality of the weight vector and the hyperplane is a result of the definition of the hyperplane, not the bias term.
+
+
+

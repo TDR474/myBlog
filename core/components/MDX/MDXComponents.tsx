@@ -22,6 +22,8 @@ import Code from '@core/components/Code';
 import Fullbleed from '@core/components/Fullbleed';
 import VideoPlayer from '@core/components/VideoPlayer';
 import HyperplaneChart from '@core/components/HyperplaneChart';
+import HyperplaneChart2 from '@core/components/HyperplaneChart2';
+import HyperplaneChart3 from '@core/components/HyperplaneChart3';
 
 // MDX only components
 import Image from './Image';
@@ -243,6 +245,8 @@ const customComponents = {
   ThemePicker,
   HeartRateWidget,
   HyperplaneChart,
+  HyperplaneChart2,
+  HyperplaneChart3,
   Card,
   CardBody: Card.Body,
   ScrollSpyWidget,

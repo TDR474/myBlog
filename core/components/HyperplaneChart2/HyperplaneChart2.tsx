@@ -17,10 +17,10 @@ const HyperplaneChart: React.FC<HyperplaneChartProps> = ({
     title = "Hyperplane Visualization"
   }) => {
     // Define the weight vector W
-    const W = [1, 2, 3];
+    const W = [1, 2, 2];
   
     // Define X1 as the feature vector
-    const X1 = [2, 1, 1]; // This is now our feature vector
+    const X1 = [1, 1, 1]; // This is now our feature vector
   
     // Calculate the dot product for the hyperplane equation
     const dotProduct = W.reduce((sum, wi, i) => sum + wi * X1[i], 0);
@@ -57,10 +57,10 @@ const HyperplaneChart: React.FC<HyperplaneChartProps> = ({
     const normalizedPositions = pointPositions.map(pos => pos / maxDistance);
   
     // Define X2 as another vector on the hyperplane
-    const X2 = [-1, 2, (dotProduct + W[0] - 2*W[1]) / W[2]];
+    const X2 = [2, -1, 2.5];
 
     // Calculate X1 - X2
-    const X1minusX2 = [X1[0]-X2[0], X1[1]-X2[1], X1[2]-X2[2]];
+    const X1minusX2 = [-1, 2, -1.5];
 
     const data = [
       // Hyperplane
@@ -94,6 +94,28 @@ const HyperplaneChart: React.FC<HyperplaneChartProps> = ({
         line: {color: 'green', width: 5},
         marker: {size: 4, color: 'green'},
         name: 'Feature Vector (X1)'
+      },
+      // X2 vector
+      {
+        type: 'scatter3d',
+        x: [0, X2[0]],
+        y: [0, X2[1]],
+        z: [0, X2[2]],
+        mode: 'lines+markers',
+        line: {color: 'blue', width: 5},
+        marker: {size: 4, color: 'blue'},
+        name: 'X2'
+      },
+      // X1 - X2 vector
+      {
+        type: 'scatter3d',
+        x: [0, X1minusX2[0]],
+      y: [0, X1minusX2[1]],
+      z: [0, X1minusX2[2]],
+        mode: 'lines+markers',
+        line: {color: 'purple', width: 5},
+        marker: {size: 4, color: 'purple'},
+        name: 'X1 - X2'
       },
       // Random points
       {

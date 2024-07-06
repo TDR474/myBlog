@@ -16,6 +16,10 @@ module.exports = {
     'iOS',
     'native',
     'serverless',
+    'machine learning',
+    'data science',
+    'deep learning',
+    'neural networks',
   ],
   title: "Frank Zhu's Blog",
   titleAlt: 'Frank Zhu | Blog',
@@ -30,7 +34,7 @@ module.exports = {
   author: 'Frank Zhu', // Author for schemaORGJSONLD
   themeColor: '#000000',
   backgroundColor: '#ffffff',
-  twitter: '@MaximeHeckel', // Twitter Username
+  twitter: '@frankzhu', // Twitter Username
   twitterDesc:
     'Frank is a SWE currently based in New York.',
 };
