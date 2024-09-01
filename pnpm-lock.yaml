@@ -316,8 +316,8 @@ importers:
         specifier: 1.17.1
         version: 1.17.1
       playwright-webkit:
-        specifier: ^1.27.1
-        version: 1.45.0
+        specifier: ^1.46.1
+        version: 1.46.1
       prettier:
         specifier: 2.2.1
         version: 2.2.1
@@ -7639,13 +7639,13 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  playwright-core@1.45.0:
-    resolution: {integrity: sha512-lZmHlFQ0VYSpAs43dRq1/nJ9G/6SiTI7VPqidld9TDefL9tX87bTKExWZZUF5PeRyqtXqd8fQi2qmfIedkwsNQ==}
+  playwright-core@1.46.1:
+    resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-webkit@1.45.0:
-    resolution: {integrity: sha512-IPS6b6BoT8mwxcEdoxLXwcjSnOvJVWW/gTeB9vV6GnNBBgrB3YVIr/uvExFjRvZbRcKQfi/wyfSfJCDNe45FTA==}
+  playwright-webkit@1.46.1:
+    resolution: {integrity: sha512-/ukeGPICHYZRnLHTWCESXbH0FbUrorE8Qm7iCh/hybSaEVBCu+tkrmne2d2zJ5UXj/z55Gz231y4QNix5rMIRg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -11541,11 +11541,7 @@ snapshots:
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -20118,11 +20114,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  playwright-core@1.45.0: {}
+  playwright-core@1.46.1: {}
 
-  playwright-webkit@1.45.0:
+  playwright-webkit@1.46.1:
     dependencies:
-      playwright-core: 1.45.0
+      playwright-core: 1.46.1
 
   playwright@1.17.1:
     dependencies:
