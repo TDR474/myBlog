@@ -161,6 +161,36 @@ const IndexPage = (props: Props) => {
                   Link redirects to my Github profile page
                 </VisuallyHidden>
               </a>
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=TDR474.drag-and-drop-images"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button
+                  variant="secondary"
+                  endIcon={<Icon.Info size="4" />}
+                >
+                  Jupyter Image Extension
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my VSCode Extension profile page
+                </VisuallyHidden>
+              </a>
+              <a
+                href="https://frankzhu.io/bt-vis.html"
+                style={{ textDecoration: 'none' }}
+                tabIndex={-1}
+              >
+                <Button
+                  variant="secondary"
+                  endIcon={<Icon.Play size="4" />}
+                >
+                  Leetcode Visualizer
+                </Button>
+                <VisuallyHidden as="p">
+                  Link redirects to my VSCode Extension profile page
+                </VisuallyHidden>
+              </a>
             </Flex>
           </Flex>
         </Grid.Item>

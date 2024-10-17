@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background-color: #202020;
+            color: #dcddde;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #app {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #dcddde;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        input, button {
+            font-size: 16px;
+            padding: 10px 15px;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            background-color: #2d2d2d;
+            color: #dcddde;
+            box-sizing: border-box;
+        }
+        input {
+            flex-grow: 1;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #7f6df2;
+        }
+        button {
+            background-color: #7f6df2;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+        }
+        button:hover {
+            background-color: #9785f5;
+        }
+        canvas {
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            width: 70%;
+            max-width: 660px;
+            height: 60vh;
+            max-height: 600px;
+            background-color: #2a2a2a;
+        }
+        .instructions {
+            margin-top: 20px;
+            color: #a6a6a6;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 600px;
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Binary Tree Visualizer</h1>
+        <div class="controls">
+            <input v-model="treeInput" placeholder="Enter tree values (e.g., 1,2,3,null,null,4,5 or [1,2,3,null,null,4,5])">
+            <button @click="generateTree">Generate</button>
+        </div>
+        <canvas ref="canvas" @mousemove="onMouseMove" @mousedown="onMouseDown" @mouseup="onMouseUp"></canvas>
+        <div class="error-message" v-if="errorMessage">{{ errorMessage }}</div>
+        <div class="instructions">
+            <p>Drag nodes to reposition. Overlap nodes to swap them. </p>
+            <p>@frankzhu2024</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch, nextTick } = Vue;
+        const MIN_NODE_RADIUS = 20;
+        const MAX_NODE_RADIUS = 40;
+        const EDGE_LENGTH = 100; // Fixed edge length
+
+        class TreeNode {
+    constructor(val = 0, left = null, right = null, isNull = false) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+        this.x = 0;
+        this.y = 0;
+        this.targetX = 0;
+        this.targetY = 0;
+        this.isNull = isNull;
+    }
+}
+
+        createApp({
+            setup() {
+                const canvas = ref(null);
+                const ctx = ref(null);
+                const treeInput = ref('1,2,3,null,null,4,5');
+                const root = ref(null);
+                const selectedNode = ref(null);
+                const hoveredNode = ref(null);
+                const hoveredEdge = ref(null);
+                const potentialParent = ref(null);
+                const nodeRadius = ref(25);
+                const animationSpeed = 0.1;
+                const minNodeDistance = ref(100);
+                const errorMessage = ref('');
+
+                // Handle high-DPI screens
+                const setupCanvas = () => {
+    const canvasElement = canvas.value;
+    const context = canvasElement.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvasElement.getBoundingClientRect();
+    canvasElement.width = rect.width * dpr;
+    canvasElement.height = rect.height * dpr;
+    context.scale(dpr, dpr);
+    ctx.value = context;
+    
+    // Recalculate node radius based on canvas size
+    const minDimension = Math.min(rect.width, rect.height);
+    nodeRadius.value = Math.max(MIN_NODE_RADIUS, Math.min(MAX_NODE_RADIUS, minDimension / 20));
+    
+    // Re-layout the tree after resizing
+    if (root.value) {
+        layoutTree(root.value);
+        centerTree();
+    }
+};
+
+                // Function to build the tree from input values
+                const buildTree = (input) => {
+    if (typeof input === 'string' && input.startsWith('TreeNode')) {
+        // Handle string representation of tree structure
+        return parseTreeNodeString(input);
+    } else if (Array.isArray(input) || typeof input === 'string') {
+        // Handle array or comma-separated string input
+        const values = Array.isArray(input) ? input : input.split(',').map(v => v.trim());
+        if (values.length === 0) return null;
+        
+        const nodes = values.map(val => 
+            val === 'null' || val === 'None' ? null : new TreeNode(parseInt(val))
+        );
+        
+        const root = nodes[0];
+        const queue = [root];
+        let i = 1;
+        
+        while (queue.length > 0 && i < nodes.length) {
+            const current = queue.shift();
+            
+            if (current) {
+                if (i < nodes.length) {
+                    current.left = nodes[i];
+                    if (nodes[i]) queue.push(nodes[i]);
+                    i++;
+                }
+                if (i < nodes.length) {
+                    current.right = nodes[i];
+                    if (nodes[i]) queue.push(nodes[i]);
+                    i++;
+                }
+            }
+        }
+        
+        return root;
+    } else {
+        throw new Error('Invalid input format');
+    }
+};
+
+                // Function to layout the tree nodes on the canvas
+                const layoutTree = (node, depth = 0, left = 50, right = canvas.value.clientWidth - 50) => {
+                    if (!node) return;
+                    const x = (left + right) /2;
+                    const verticalSpacing = depth === 0 ? 40 : 70; // Reduced spacing for root to child
+                    const y = depth * verticalSpacing + nodeRadius.value * 2;
+                    node.targetX = x;
+                    node.targetY = y;
+                    if (node.x === 0 && node.y === 0) {
+                        node.x = node.targetX;
+                        node.y = node.targetY;
+                    }
+                    const childSpacing = Math.max((right - left) / 2, minNodeDistance.value);
+                    layoutTree(node.left, depth + 1, left, x+20);
+                    layoutTree(node.right, depth + 1, x-20, right);
+                };
+
+                const parseTreeNodeString = (str) => {
+    // Remove all whitespace
+    str = str.replace(/\s/g, '');
+    
+    const parseNode = () => {
+        if (str.startsWith('None')) {
+            str = str.slice(4);
+            return new TreeNode(null, null, null, true);
+        }
+        
+        const match = str.match(/TreeNode\{val:(\d+),left:(.*?),right:(.*?)\}/);
+        if (!match) {
+            throw new Error('Invalid TreeNode format');
+        }
+        
+        const [, val, left, right] = match;
+        str = str.slice(match[0].length);
+        
+        const node = new TreeNode(parseInt(val));
+        node.left = parseNode();
+        node.right = parseNode();
+        
+        return node;
+    };
+    
+    return parseNode();
+};
+                // Function to draw the entire tree
+                const drawTree = () => {
+                    if (!ctx.value) return;
+                    ctx.value.clearRect(0, 0, canvas.value.clientWidth, canvas.value.clientHeight);
+                    if (root.value) drawNode(root.value);
+                };
+
+                // Function to draw individual nodes and their edges
+                const drawNode = (node) => {
+    if (!node) return;
+
+    if (node === potentialParent.value) {
+        if (node.swapCandidate) {
+            drawGlow(node, true); // Swap glow
+        } else {
+            drawGlow(node, false); // Regular glow
+        }
+    }
+
+    // Now draw the edges (before the node itself)
+    if (node.left) drawEdge(node, node.left);
+    if (node.right) drawEdge(node, node.right);
+
+    // Now draw the node on top of the glow and edges
+    ctx.value.beginPath();
+    ctx.value.arc(node.x, node.y, nodeRadius.value, 0, 2 * Math.PI);
+
+    // Determine the fill color for the node
+    let fillColor;
+    if (node === selectedNode.value) {
+        fillColor = '#ff6b6b';  // Red for selected
+    } else if (node === hoveredNode.value) {
+        fillColor = '#4ecdc4';  // Teal for hovered
+    } else {
+        fillColor = '#7f6df2';  // Default purple
+    }
+    ctx.value.fillStyle = fillColor;
+    ctx.value.fill();
+    ctx.value.strokeStyle = '#dcddde';
+    ctx.value.lineWidth = 2;
+    ctx.value.stroke();
+
+    // Draw the node's value
+    ctx.value.fillStyle = '#ffffff';
+    ctx.value.font = `bold ${nodeRadius.value * 0.8}px Inter`;
+    ctx.value.textAlign = 'center';
+    ctx.value.textBaseline = 'middle';
+    ctx.value.fillText(node.val, node.x, node.y);
+
+    // Recursively draw child nodes
+    drawNode(node.left);
+    drawNode(node.right);
+};
+
+// Edge drawing function
+const drawEdge = (parent, child) => {
+    const dx = child.x - parent.x;
+    const dy = child.y - parent.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const ratio = (distance - nodeRadius.value) / distance;
+    const endX = parent.x + dx * ratio;
+    const endY = parent.y + dy * ratio;
+
+    ctx.value.beginPath();
+    ctx.value.moveTo(parent.x, parent.y);
+    ctx.value.lineTo(endX, endY);
+    ctx.value.strokeStyle = '#a6a6a6';  // Default edge color
+    ctx.value.lineWidth = 2;
+    ctx.value.stroke();
+};
+                // Function to draw the glow effect
+                const drawGlow = (node, isSwap = false) => {
+    const glowRadius = nodeRadius.value * 1.7;
+
+    const gradient = ctx.value.createRadialGradient(
+        node.x, node.y, nodeRadius.value,
+        node.x, node.y, glowRadius
+    );
+
+    
+    if (isSwap) {
+        // Swap glow gradient (orange to pink, no purple)
+        gradient.addColorStop(0, 'rgba(251, 218, 97, 0.4)');
+        gradient.addColorStop(0, 'rgba(251, 218, 97, 0.4)');
+        
+        gradient.addColorStop(1, 'rgba(255, 90, 205, 0)');
+    } else {
+        // Regular glow gradient (blue to purple, no orange)
+        gradient.addColorStop(0, 'rgba(65, 88, 208, 0.5)');
+        gradient.addColorStop(0.5, 'rgba(200, 80, 192, 0.2)');
+        gradient.addColorStop(1, 'rgba(200, 80, 192, 0)');
+    }
+
+    ctx.value.fillStyle = gradient;
+    ctx.value.beginPath();
+    ctx.value.arc(node.x, node.y, glowRadius, 0, 2 * Math.PI);
+    ctx.value.fill();
+};
+
+
+                // Function to determine which side the dragging node is closer to
+                const determineSide = (targetNode) => {
+                    if (!selectedNode.value) return null;
+                    const dx = selectedNode.value.targetX - targetNode.x;
+                    if (dx < -nodeRadius.value / 2) {
+                        return 'left';
+                    } else if (dx > nodeRadius.value / 2) {
+                        return 'right';
+                    }
+                    return null;
+                };
+
+                // Animation loop to smoothly transition node positions
+                const animate = () => {
+                    if (root.value) animateNode(root.value);
+                    drawTree();
+                    requestAnimationFrame(animate);
+                };
+
+                // Function to animate individual nodes
+                const animateNode = (node) => {
+                    if (!node) return;
+                    node.x += (node.targetX - node.x) * animationSpeed;
+                    node.y += (node.targetY - node.y) * animationSpeed;
+                    animateNode(node.left);
+                    animateNode(node.right);
+                };
+
+                // Function to generate the tree from input
+                const generateTree = () => {
+                    let values = [];
+                    let input = treeInput.value.trim();
+
+                    // Auto-correct incomplete array inputs
+                    if (input.startsWith('[') && !input.endsWith(']')) {
+                        input += ']';
+                    }
+
+                    // Handle both comma-separated and array-like inputs
+                    if (input.startsWith('[') && input.endsWith(']')) {
+                        try {
+                            values = JSON.parse(input);
+                        } catch (e) {
+                            errorMessage.value = "Invalid input format. Please ensure it's a valid JSON array.";
+                            console.error("JSON parse error:", e);
+                            return;
+                        }
+                    } else {
+                        values = input.split(',').map(val => val.trim());
+                    }
+
+                    // Validate the input
+                    const isValid = values.every(val => val === 'null' || /^\d+$/.test(val));
+                    if (!isValid) {
+                        errorMessage.value = "Invalid input format. Use numbers and 'null' separated by commas.";
+                        return;
+                    }
+
+                    errorMessage.value = ''; // Clear any previous error messages
+
+                    console.log('Tree Input:', values); // Debug the input
+                    root.value = buildTree(values);
+
+                    if (!root.value) {
+                        errorMessage.value = "Tree could not be built. Please check your input.";
+                        console.error("Tree could not be built");
+                        return;
+                    }
+                    
+                    layoutTree(root.value);
+                    console.log('Tree generated and laid out'); // Confirm tree is built
+                };
+
+                // Function to find a node at a specific position
+                const findNodeAtPosition = (x, y, node = root.value) => {
+                    if (!node) return null;
+                    const distance = Math.sqrt((node.x - x) ** 2 + (node.y - y) ** 2);
+                    if (distance <= nodeRadius.value + 10) return node; // Increased tolerance
+                    const leftResult = findNodeAtPosition(x, y, node.left);
+                    if (leftResult) return leftResult;
+                    return findNodeAtPosition(x, y, node.right);
+                };
+
+                // Function to find an edge at a specific position
+                const findEdgeAtPosition = (x, y, node = root.value) => {
+                    if (!node) return null;
+                    if (node.left && isPointNearLine(x, y, node.x, node.y, node.left.x, node.left.y)) {
+                        return [node, node.left];
+                    }
+                    if (node.right && isPointNearLine(x, y, node.x, node.y, node.right.x, node.right.y)) {
+                        return [node, node.right];
+                    }
+                    const leftResult = findEdgeAtPosition(x, y, node.left);
+                    if (leftResult) return leftResult;
+                    return findEdgeAtPosition(x, y, node.right);
+                };
+
+                // Helper function to determine if a point is near a line segment
+                const isPointNearLine = (x, y, x1, y1, x2, y2, tolerance = 10) => {
+                    const A = x - x1;
+                    const B = y - y1;
+                    const C = x2 - x1;
+                    const D = y2 - y1;
+                    const dot = A * C + B * D;
+                    const lenSq = C * C + D * D;
+                    let param = -1;
+                    if (lenSq !== 0) param = dot / lenSq;
+                    let xx, yy;
+                    if (param < 0) {
+                        xx = x1;
+                        yy = y1;
+                    } else if (param > 1) {
+                        xx = x2;
+                        yy = y2;
+                    } else {
+                        xx = x1 + param * C;
+                        yy = y1 + param * D;
+                    }
+                    const dx = x - xx;
+                    const dy = y - yy;
+                    return Math.sqrt(dx * dx + dy * dy) <= tolerance;
+                };
+
+                // Function to handle mouse movement events
+                const onMouseMove = (event) => {
+                    const rect = canvas.value.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+
+                    if (selectedNode.value) {
+                        // Update the position of the selected node
+                        selectedNode.value.targetX = x;
+                        selectedNode.value.targetY = y;
+                        potentialParent.value = findPotentialParent(x, y, selectedNode.value);
+                    } else {
+                        hoveredNode.value = findNodeAtPosition(x, y);
+                        hoveredEdge.value = findEdgeAtPosition(x, y);
+                    }
+                };
+
+                // Function to handle mouse down events
+                const onMouseDown = (event) => {
+    const rect = canvas.value.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const clickedNode = findNodeAtPosition(x, y);
+    if (clickedNode) {
+        selectedNode.value = clickedNode;
+        // Highlight the selected node
+        drawNode(selectedNode.value);
+    } else {
+        selectedNode.value = null;
+    }
+};
+
+                // Function to handle mouse up events
+                const onMouseUp = () => {
+    if (selectedNode.value && potentialParent.value) {
+        if (potentialParent.value.swapCandidate) {
+            // **New Code Start**
+            // Check if the potential parent is the immediate parent of the selected node
+            const parentOfSelected = findParent(root.value, selectedNode.value);
+            if (parentOfSelected === potentialParent.value) {
+                // Swap only the values of the nodes
+                const tempVal = selectedNode.value.val;
+                selectedNode.value.val = potentialParent.value.val;
+                potentialParent.value.val = tempVal;
+            } else {
+                // Perform full node swap for non-immediate parent scenarios
+                swapNodes(selectedNode.value, potentialParent.value);
+            }
+            // **New Code End**
+        } else {
+            // Determine which side to attach based on drop position
+            const dropSide = selectedNode.value.targetX < potentialParent.value.x ? 'left' : 'right';
+
+            if (dropSide === 'left' && potentialParent.value.left === null) {
+                potentialParent.value.left = selectedNode.value;
+            } else if (dropSide === 'right' && potentialParent.value.right === null) {
+                potentialParent.value.right = selectedNode.value;
+            } else {
+                // Fallback to the opposite side if desired side is occupied
+                if (potentialParent.value.left === null) {
+                    potentialParent.value.left = selectedNode.value;
+                } else if (potentialParent.value.right === null) {
+                    potentialParent.value.right = selectedNode.value;
+                } else {
+                    // Both children are occupied; handle accordingly (e.g., notify the user)
+                    console.warn("Both children are occupied. Cannot attach node.");
+                }
+            }
+        }
+        layoutTree(root.value);
+    } else if (selectedNode.value) {
+        // If no potential parent, just update the position of the selected node
+        selectedNode.value.x = selectedNode.value.targetX;
+        selectedNode.value.y = selectedNode.value.targetY;
+    }
+    
+    selectedNode.value = null;
+    potentialParent.value = null;
+};
+
+
+const animateNodeToTarget = (node) => {
+    if (!node) return;
+    const animate = () => {
+        const dx = node.targetX - node.x;
+        const dy = node.targetY - node.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > 1) {
+            node.x += dx * 0.2;
+            node.y += dy * 0.2;
+            requestAnimationFrame(animate);
+        } else {
+            node.x = node.targetX;
+            node.y = node.targetY;
+        }
+        drawTree();
+    };
+    animate();
+};
+
+                // Helper function to remove a node from its current parent
+                const removeNodeFromParent = (current, nodeToRemove) => {
+                    if (!current) return false;
+                    if (current.left === nodeToRemove) {
+                        current.left = null;
+                        return true;
+                    }
+                    if (current.right === nodeToRemove) {
+                        current.right = null;
+                        return true;
+                    }
+                    return removeNodeFromParent(current.left, nodeToRemove) || removeNodeFromParent(current.right, nodeToRemove);
+                };
+
+                // Function to find a potential parent node for attaching
+                const findPotentialParent = (x, y, draggingNode) => {
+    const threshold = 100;
+    const swapThreshold = nodeRadius.value * 1.5; // Threshold for node swapping
+
+    let closestNode = null;
+    let minDistance = Infinity;
+
+    const allNodes = [];
+    const traverse = (node) => {
+        if (!node) return;
+        allNodes.push(node);
+        traverse(node.left);
+        traverse(node.right);
+    };
+    traverse(root.value);
+
+    for (let node of allNodes) {
+        if (node === draggingNode || isDescendant(draggingNode, node)) continue;
+
+        const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+
+        if (distance < swapThreshold) {
+            node.swapCandidate = true;
+            return node; // Return the node to swap with
+        }
+
+        if (distance < threshold) {
+            const leftFree = !node.left;
+            const rightFree = !node.right;
+
+            if ((leftFree || rightFree) && distance < minDistance) {
+                node.proximitySide = leftFree ? 'left' : 'right';
+                minDistance = distance;
+                closestNode = node;
+            }
+        } else {
+            node.swapCandidate = false;
+        }
+    }
+
+    return closestNode;
+};
+
+const swapNodes = (node1, node2) => {
+    // Find the parents of node1 and node2
+    const parent1 = findParent(root.value, node1);
+    const parent2 = findParent(root.value, node2);
+
+    if (!parent1 || !parent2) {
+        console.error("Cannot swap root node or node not found");
+        return;
+    }
+
+    // Determine which child (left or right) each node is
+    const isLeftChild1 = parent1.left === node1;
+    const isLeftChild2 = parent2.left === node2;
+
+    // Swap the nodes in their parents
+    if (isLeftChild1) {
+        parent1.left = node2;
+    } else {
+        parent1.right = node2;
+    }
+
+    if (isLeftChild2) {
+        parent2.left = node1;
+    } else {
+        parent2.right = node1;
+    }
+
+    // Swap the positions of the nodes
+    const tempX = node1.x;
+    const tempY = node1.y;
+    node1.x = node2.x;
+    node1.y = node2.y;
+    node2.x = tempX;
+    node2.y = tempY;
+
+    // Swap the target positions as well
+    const tempTargetX = node1.targetX;
+    const tempTargetY = node1.targetY;
+    node1.targetX = node2.targetX;
+    node1.targetY = node2.targetY;
+    node2.targetX = tempTargetX;
+    node2.targetY = tempTargetY;
+
+    // We don't swap the children references, as we want to maintain the structure
+    // This means the swapped nodes keep their original subtrees
+};
+
+// Helper function to find the parent of a node
+const findParent = (current, nodeToFind) => {
+    if (!current) return null;
+    if (current.left === nodeToFind || current.right === nodeToFind) return current;
+    const leftResult = findParent(current.left, nodeToFind);
+    if (leftResult) return leftResult;
+    return findParent(current.right, nodeToFind);
+};
+                // Helper function to check if a node is a descendant of another
+                const isDescendant = (parent, node) => {
+                    if (!parent) return false;
+                    if (parent === node) return true;
+                    return isDescendant(parent.left, node) || isDescendant(parent.right, node);
+                };
+
+                // Function to delete a node from the tree
+                const deleteNode = (nodeToDelete) => {
+    if (nodeToDelete === root.value) {
+        root.value = null;
+        return;
+    }
+
+    const removeNode = (current, parent) => {
+        if (!current) return false;
+        if (current === nodeToDelete) {
+            // Case 1: Node to be deleted is a leaf
+            if (!current.left && !current.right) {
+                if (parent.left === current) {
+                    parent.left = null;
+                } else {
+                    parent.right = null;
+                }
+            }
+            // Case 2: Node to be deleted has only one child
+            else if (!current.left) {
+                if (parent.left === current) {
+                    parent.left = current.right;
+                } else {
+                    parent.right = current.right;
+                }
+            }
+            else if (!current.right) {
+                if (parent.left === current) {
+                    parent.left = current.left;
+                } else {
+                    parent.right = current.left;
+                }
+            }
+            // Case 3: Node to be deleted has two children
+            else {
+                const minNode = findMinNode(current.right);
+                current.val = minNode.val;
+                removeNode(current.right, current);
+            }
+            return true;
+        }
+        return removeNode(current.left, current) || removeNode(current.right, current);
+    };
+
+    const findMinNode = (node) => {
+        while (node.left) {
+            node = node.left;
+        }
+        return node;
+    };
+
+    removeNode(root.value, null);
+    layoutTree(root.value);
+};
+
+                // Initialize the canvas and start the animation loop
+                onMounted(() => {
+    nextTick(() => {
+        canvas.value = document.querySelector('canvas');
+        setupCanvas();
+        if (canvas.value) {
+            generateTree();
+            animate();
+
+            // Add keyboard event listener for deleting nodes
+            window.addEventListener('resize', setupCanvas);
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Delete' && selectedNode.value) {
+                    deleteNode(selectedNode.value);
+                    selectedNode.value = null;
+                }
+            });
+
+                        } else {
+                            console.error("Canvas is not available");
+                        }
+                    });
+                });
+
+                // Watch for changes in the tree input and regenerate the tree
+                watch(treeInput, generateTree);
+
+                return {
+                    canvas,
+                    treeInput,
+                    generateTree,
+                    onMouseMove,
+                    onMouseDown,
+                    onMouseUp,
+                    errorMessage,
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
