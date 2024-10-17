@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Binary Tree Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=CMU+Serif&display=swap" rel="stylesheet">
+
     <style>
+        
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            font-family: 'CMU Serif', serif;
         }
         body {
             background-color: #202020;
@@ -42,9 +44,11 @@
             gap: 15px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
+            
         }
         input, button {
+            font-family: 'CMU Serif', serif;
             font-size: 16px;
             padding: 10px 15px;
             border: 1px solid #4a4a4a;
@@ -52,8 +56,10 @@
             background-color: #2d2d2d;
             color: #dcddde;
             box-sizing: border-box;
+            text-align:center 
         }
         input {
+            font-family: 'CMU Serif', serif;
             flex-grow: 1;
             transition: border-color 0.3s;
         }
@@ -96,16 +102,42 @@
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" @click="handlePageClick">
         <h1>Binary Tree Visualizer</h1>
         <div class="controls">
-            <input v-model="treeInput" placeholder="Enter tree values (e.g., 1,2,3,null,null,4,5 or [1,2,3,null,null,4,5])">
+            <input v-model="treeInput" placeholder="Enter tree values (e.g., 1, 2, 3, null, null,4,5 or [1,2,3,null,null,4,5])">
+
             <button @click="generateTree">Generate</button>
         </div>
         <canvas ref="canvas" @mousemove="onMouseMove" @mousedown="onMouseDown" @mouseup="onMouseUp"></canvas>
+        
+        <input
+            v-if="inputBoxVisible"
+            ref="inputBox"
+            v-model="inputValue"
+            @keyup.enter="handleInputSubmit"
+            @click.stop
+            onblur="this.focus()"
+            autofocus
+            :style="{
+                position: 'absolute',
+                left: `${inputBoxPosition.x}px`,
+                top: `${inputBoxPosition.y}px`,
+                transform: 'translate(-50%, 5%)',
+                width: `${nodeRadius * 1.5}px`,
+                height: `${nodeRadius * 1}px`,
+                backgroundColor: '#2d2d2d',
+                color: '#dcddde',
+                border: '2px solid #7f6df2',
+                padding: '0',  // Remove extra padding
+                textAlign: 'center',
+                fontSize: `${nodeRadius * 0.4}px`,
+                zIndex: 10
+            }"
+        />
         <div class="error-message" v-if="errorMessage">{{ errorMessage }}</div>
         <div class="instructions">
-            <p>Drag nodes to reposition. Overlap nodes to swap them. </p>
+            <p>Drag nodes to reposition. Overlap nodes to swap them.</p>
             <p>@frankzhu2024</p>
         </div>
     </div>
@@ -115,25 +147,53 @@
         const MIN_NODE_RADIUS = 20;
         const MAX_NODE_RADIUS = 40;
         const EDGE_LENGTH = 100; // Fixed edge length
+        const showInputBox = ref(false);
+        const inputBoxPosition = ref({ x: 0, y: 0 });
+        const inputBoxSide = ref(null);
+        const inputBoxParent = ref(null);
 
+        
         class TreeNode {
-    constructor(val = 0, left = null, right = null, isNull = false) {
-        this.val = val;
-        this.left = left;
-        this.right = right;
-        this.x = 0;
-        this.y = 0;
-        this.targetX = 0;
-        this.targetY = 0;
-        this.isNull = isNull;
-    }
-}
+            constructor(val = 0, left = null, right = null, isNull = false) {
+                this.val = val;
+                this.left = left;
+                this.right = right;
+                this.x = 0;
+                this.y = 0;
+                this.targetX = 0;
+                this.targetY = 0;
+                this.isNull = isNull;
+            }
+        }
 
         createApp({
+            
             setup() {
+                // for some reason this is not working
+                // call it in the onMounted
+                const handlePageClick = () => {
+                    console.log('From handlePageClick selectedNode.value', selectedNode.value);
+                    console.log('From handlePageClick potentialParent.value', potentialParent.value);
+                    console.log('From handlePageClick inputBoxVisible.value', inputBoxVisible.value);
+                    selectedNode.value = null;
+                    potentialParent.value = null;
+
+                    inputBoxVisible.value = false;
+            };
+
+            // Prevent the input box from closing when clicked inside
+            const preventClose = (event) => {
+                event.stopPropagation();
+            };
+
+                const inputBoxVisible = ref(false);
+                const inputBoxPosition = ref({ x: 0, y: 0 });
+                const inputValue = ref('');
+                const inputBoxRef = ref(null);
+                const inputBoxParent = ref(null);
                 const canvas = ref(null);
                 const ctx = ref(null);
-                const treeInput = ref('1,2,3,null,null,4,5');
+                const treeInput = ref('1, 2, 3, null, null, 4, 5');
                 const root = ref(null);
                 const selectedNode = ref(null);
                 const hoveredNode = ref(null);
@@ -143,69 +203,116 @@
                 const animationSpeed = 0.1;
                 const minNodeDistance = ref(100);
                 const errorMessage = ref('');
+                const firstClick = ref(null);
+
+                let lastNode = ref(null);
+
 
                 // Handle high-DPI screens
                 const setupCanvas = () => {
-    const canvasElement = canvas.value;
-    const context = canvasElement.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvasElement.getBoundingClientRect();
-    canvasElement.width = rect.width * dpr;
-    canvasElement.height = rect.height * dpr;
-    context.scale(dpr, dpr);
-    ctx.value = context;
-    
-    // Recalculate node radius based on canvas size
-    const minDimension = Math.min(rect.width, rect.height);
-    nodeRadius.value = Math.max(MIN_NODE_RADIUS, Math.min(MAX_NODE_RADIUS, minDimension / 20));
-    
-    // Re-layout the tree after resizing
-    if (root.value) {
-        layoutTree(root.value);
-        centerTree();
+                    const canvasElement = canvas.value;
+                    const context = canvasElement.getContext('2d');
+                    const dpr = window.devicePixelRatio || 1;
+                    const rect = canvasElement.getBoundingClientRect();
+                    canvasElement.width = rect.width * dpr;
+                    canvasElement.height = rect.height * dpr;
+                    context.scale(dpr, dpr);
+                    ctx.value = context;
+                    
+                    // Recalculate node radius based on canvas size
+                    const minDimension = Math.min(rect.width, rect.height);
+                    nodeRadius.value = Math.max(MIN_NODE_RADIUS, Math.min(MAX_NODE_RADIUS, minDimension / 20));
+                    
+                    // Re-layout the tree after resizing
+                    if (root.value) {
+                        layoutTree(root.value);
+                        // centerTree();
+                    }
+                };
+
+                watch(inputBoxVisible, (newValue) => {
+    if (newValue) {
+        // Input box has become visible, set focus automatically
+        nextTick(() => {
+            if (inputBoxRef.value) {
+                inputBoxRef.value.focus(); // Directly focus on the input
+                inputBoxRef.value.select(); // Optional: select the content if needed
+            }
+        });
     }
-};
+});
+
+
 
                 // Function to build the tree from input values
                 const buildTree = (input) => {
-    if (typeof input === 'string' && input.startsWith('TreeNode')) {
-        // Handle string representation of tree structure
-        return parseTreeNodeString(input);
-    } else if (Array.isArray(input) || typeof input === 'string') {
-        // Handle array or comma-separated string input
-        const values = Array.isArray(input) ? input : input.split(',').map(v => v.trim());
-        if (values.length === 0) return null;
+    let values;
+    
+    if (typeof input === 'string') {
+        // Remove any brackets, even if they're unmatched
+        input = input.replace(/[\[\]]/g, '');
         
-        const nodes = values.map(val => 
-            val === 'null' || val === 'None' ? null : new TreeNode(parseInt(val))
-        );
-        
-        const root = nodes[0];
-        const queue = [root];
-        let i = 1;
-        
-        while (queue.length > 0 && i < nodes.length) {
-            const current = queue.shift();
-            
-            if (current) {
-                if (i < nodes.length) {
-                    current.left = nodes[i];
-                    if (nodes[i]) queue.push(nodes[i]);
-                    i++;
-                }
-                if (i < nodes.length) {
-                    current.right = nodes[i];
-                    if (nodes[i]) queue.push(nodes[i]);
-                    i++;
-                }
-            }
-        }
-        
-        return root;
+        // Split by comma, allowing for various whitespace
+        values = input.split(/\s*,\s*/).filter(v => v !== '');
+    } else if (Array.isArray(input)) {
+        values = input;
     } else {
         throw new Error('Invalid input format');
     }
+    
+    // Convert values to numbers or null
+    values = values.map(val => {
+        if (val === 'null' || val === 'None' || val === '') {
+            return null;
+        }
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+    });
+    
+    if (values.length === 0) return null;
+    
+    const root = new TreeNode(values[0]);
+    const queue = [root];
+    let i = 1;
+    
+    while (queue.length > 0 && i < values.length) {
+        const current = queue.shift();
+        
+        if (current) {
+            if (i < values.length) {
+                current.left = values[i] !== null ? new TreeNode(values[i]) : null;
+                if (current.left) queue.push(current.left);
+                i++;
+            }
+            if (i < values.length) {
+                current.right = values[i] !== null ? new TreeNode(values[i]) : null;
+                if (current.right) queue.push(current.right);
+                i++;
+            }
+        }
+    }
+    
+    return root;
 };
+
+const showInputBox = (clickedButton, clickedNode) => {
+      
+      inputValue.value = '';
+      inputBoxPosition.value = { 
+        x: clickedButton === 'left' ? clickedNode.x - nodeRadius.value * 1.5 : clickedNode.x + nodeRadius.value * 1.5,
+        y: clickedNode.y + nodeRadius.value * 1.5
+      };
+      inputBoxSide.value = clickedButton;
+      inputBoxParent.value = clickedNode;
+      inputBoxVisible.value = true;
+      // Use nextTick to ensure the input is focused after it's rendered
+      nextTick(() => {
+        if (inputBoxRef.value) {
+          inputBoxRef.value.focus();
+          inputBoxRef.value.select();
+        }
+      });
+    };
 
                 // Function to layout the tree nodes on the canvas
                 const layoutTree = (node, depth = 0, left = 50, right = canvas.value.clientWidth - 50) => {
@@ -224,72 +331,50 @@
                     layoutTree(node.right, depth + 1, x-20, right);
                 };
 
+                // Function to parse a TreeNode string (not used in this context)
                 const parseTreeNodeString = (str) => {
-    // Remove all whitespace
-    str = str.replace(/\s/g, '');
-    
-    const parseNode = () => {
-        if (str.startsWith('None')) {
-            str = str.slice(4);
-            return new TreeNode(null, null, null, true);
-        }
-        
-        const match = str.match(/TreeNode\{val:(\d+),left:(.*?),right:(.*?)\}/);
-        if (!match) {
-            throw new Error('Invalid TreeNode format');
-        }
-        
-        const [, val, left, right] = match;
-        str = str.slice(match[0].length);
-        
-        const node = new TreeNode(parseInt(val));
-        node.left = parseNode();
-        node.right = parseNode();
-        
-        return node;
-    };
-    
-    return parseNode();
-};
+                    // Implement parsing logic if needed
+                    return null;
+                };
+
                 // Function to draw the entire tree
                 const drawTree = () => {
-                    if (!ctx.value) return;
-                    ctx.value.clearRect(0, 0, canvas.value.clientWidth, canvas.value.clientHeight);
-                    if (root.value) drawNode(root.value);
-                };
+    if (!ctx.value) return;
+    ctx.value.clearRect(0, 0, canvas.value.clientWidth, canvas.value.clientHeight);
+    if (root.value) drawNode(root.value);
+    // if (inputBoxVisible.value) drawInputBox();
+};
+
+const handleInput = (event) => {
+    inputValue.value = event.target.value;
+    drawTree(); // Redraw to update the input box content
+};
 
                 // Function to draw individual nodes and their edges
                 const drawNode = (node) => {
     if (!node) return;
 
+    // 1. Draw glow first
     if (node === potentialParent.value) {
-        if (node.swapCandidate) {
-            drawGlow(node, true); // Swap glow
-        } else {
-            drawGlow(node, false); // Regular glow
-        }
+        const side = determineSide(node);
+        drawSideGlow(node, side);
     }
 
-    // Now draw the edges (before the node itself)
+    // 2. Draw edges next
     if (node.left) drawEdge(node, node.left);
     if (node.right) drawEdge(node, node.right);
 
-    // Now draw the node on top of the glow and edges
+    // 3. Finally, draw the node on top of both the glow and the edges
     ctx.value.beginPath();
     ctx.value.arc(node.x, node.y, nodeRadius.value, 0, 2 * Math.PI);
 
-    // Determine the fill color for the node
-    let fillColor;
-    if (node === selectedNode.value) {
-        fillColor = '#ff6b6b';  // Red for selected
-    } else if (node === hoveredNode.value) {
-        fillColor = '#4ecdc4';  // Teal for hovered
-    } else {
-        fillColor = '#7f6df2';  // Default purple
-    }
+    // Determine fill color with transparency
+    let fillColor = node === selectedNode.value ? 'rgba(255, 107, 107, 0.5)' : 
+                    node === hoveredNode.value ? 'rgba(78, 205, 196, 0.5)' : 'rgba(127, 109, 242, 0.5)';
+
     ctx.value.fillStyle = fillColor;
     ctx.value.fill();
-    ctx.value.strokeStyle = '#dcddde';
+    ctx.value.strokeStyle = '#dcddde'; // Optional: lighter border around node
     ctx.value.lineWidth = 2;
     ctx.value.stroke();
 
@@ -300,56 +385,143 @@
     ctx.value.textBaseline = 'middle';
     ctx.value.fillText(node.val, node.x, node.y);
 
+    // Draw add buttons if hovered
+    if (node === hoveredNode.value) {
+        drawAddButtons(node);
+    }
+
     // Recursively draw child nodes
     drawNode(node.left);
     drawNode(node.right);
 };
 
-// Edge drawing function
 const drawEdge = (parent, child) => {
     const dx = child.x - parent.x;
     const dy = child.y - parent.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const ratio = (distance - nodeRadius.value) / distance;
-    const endX = parent.x + dx * ratio;
-    const endY = parent.y + dy * ratio;
+    
+    // Adjust edge to not overlap with node
+    const startRatio = nodeRadius.value / distance;
+    const endRatio = (distance - nodeRadius.value) / distance;
+    const startX = parent.x + dx * startRatio;
+    const startY = parent.y + dy * startRatio;
+    const endX = parent.x + dx * endRatio;
+    const endY = parent.y + dy * endRatio;
 
     ctx.value.beginPath();
-    ctx.value.moveTo(parent.x, parent.y);
+    ctx.value.moveTo(startX, startY);
     ctx.value.lineTo(endX, endY);
-    ctx.value.strokeStyle = '#a6a6a6';  // Default edge color
+    
+    ctx.value.strokeStyle = '#a6a6a6'; // Default edge color
     ctx.value.lineWidth = 2;
     ctx.value.stroke();
 };
-                // Function to draw the glow effect
-                const drawGlow = (node, isSwap = false) => {
-    const glowRadius = nodeRadius.value * 1.7;
 
-    const gradient = ctx.value.createRadialGradient(
-        node.x, node.y, nodeRadius.value,
-        node.x, node.y, glowRadius
+// Function to draw the side glow
+const drawSideGlow = (node, side) => {
+    const glowRadius = nodeRadius.value * 1.7;
+    const blurRadius = nodeRadius.value * 0.3;
+
+    // Create offscreen canvas for glow effects
+    const offscreenCanvas = document.createElement('canvas');
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCanvas.width = (glowRadius + blurRadius) * 2;
+    offscreenCanvas.height = (glowRadius + blurRadius) * 2;
+
+    const centerX = offscreenCanvas.width / 2;
+    const centerY = offscreenCanvas.height / 2;
+
+    const baseGradient = offscreenCtx.createRadialGradient(
+        centerX, centerY, nodeRadius.value,
+        centerX, centerY, glowRadius
     );
 
-    
-    if (isSwap) {
-        // Swap glow gradient (orange to pink, no purple)
-        gradient.addColorStop(0, 'rgba(251, 218, 97, 0.4)');
-        gradient.addColorStop(0, 'rgba(251, 218, 97, 0.4)');
-        
-        gradient.addColorStop(1, 'rgba(255, 90, 205, 0)');
+    let glowColor;
+    if (side === 'left') {
+        glowColor = 'rgba(74, 130, 232, 100)';
+    } else if (side === 'right') {
+        glowColor = 'rgba(251, 218, 97, 1)';
     } else {
-        // Regular glow gradient (blue to purple, no orange)
-        gradient.addColorStop(0, 'rgba(65, 88, 208, 0.5)');
-        gradient.addColorStop(0.5, 'rgba(200, 80, 192, 0.2)');
-        gradient.addColorStop(1, 'rgba(200, 80, 192, 0)');
+        glowColor = 'rgba(200, 80, 192, 0.5)';
     }
 
-    ctx.value.fillStyle = gradient;
-    ctx.value.beginPath();
-    ctx.value.arc(node.x, node.y, glowRadius, 0, 2 * Math.PI);
-    ctx.value.fill();
+    baseGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    // baseGradient.addColorStop(0.5, 'rgba(0, 0, 0, 0)');
+    baseGradient.addColorStop(0.3, glowColor);
+    baseGradient.addColorStop(0.4, 'rgba(0, 0, 0, 0)');
+    baseGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+
+    offscreenCtx.fillStyle = baseGradient;
+    offscreenCtx.beginPath();
+
+    // Adjust the arc based on the side
+    const offset = 30;
+    if (side === 'left') {
+        offscreenCtx.arc(centerX - offset, centerY + offset, glowRadius, Math.PI / 2, 2 * Math.PI);
+    } else if (side === 'right') {
+        offscreenCtx.arc(centerX + offset, centerY + offset, glowRadius - 2, 3.4, Math.PI);
+    } else {
+        offscreenCtx.arc(centerX, centerY, glowRadius, 0, 2 * Math.PI);
+    }
+    offscreenCtx.fill();
+
+    offscreenCtx.filter = `blur(${blurRadius}px)`;
+    offscreenCtx.globalCompositeOperation = 'source-over';
+    offscreenCtx.drawImage(offscreenCanvas, 0, 0);
+    offscreenCtx.filter = 'none';
+
+    // Draw the blurred, directional glow onto the main canvas
+    ctx.value.drawImage(
+        offscreenCanvas,
+        node.x - centerX,
+        node.y - centerY
+    );
 };
 
+                // Function to draw the add buttons
+                const drawAddButtons = (node) => {
+    const buttonRadius = nodeRadius.value * 0.3;
+    const offsetX = nodeRadius.value * 0.7;
+    const offsetY = nodeRadius.value * 0.7;
+
+    // Left button
+    const leftX = node.x - offsetX;
+    const leftY = node.y + offsetY;
+
+    // Right button
+    const rightX = node.x + offsetX;
+    const rightY = node.y + offsetY;
+
+    // Draw left button
+    ctx.value.beginPath();
+    ctx.value.arc(leftX, leftY, buttonRadius, 0, 2 * Math.PI);
+    ctx.value.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.value.fill();
+
+    // Draw plus sign for left button
+    ctx.value.strokeStyle = '#ffffff';
+    ctx.value.lineWidth = 2;
+    ctx.value.beginPath();
+    ctx.value.moveTo(leftX - buttonRadius / 2, leftY);
+    ctx.value.lineTo(leftX + buttonRadius / 2, leftY);
+    ctx.value.moveTo(leftX, leftY - buttonRadius / 2);
+    ctx.value.lineTo(leftX, leftY + buttonRadius / 2);
+    ctx.value.stroke();
+
+    // Draw right button
+    ctx.value.beginPath();
+    ctx.value.arc(rightX, rightY, buttonRadius, 0, 2 * Math.PI);
+    ctx.value.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.value.fill();
+
+    // Draw plus sign for right button
+    ctx.value.beginPath();
+    ctx.value.moveTo(rightX - buttonRadius / 2, rightY);
+    ctx.value.lineTo(rightX + buttonRadius / 2, rightY);
+    ctx.value.moveTo(rightX, rightY - buttonRadius / 2);
+    ctx.value.lineTo(rightX, rightY + buttonRadius / 2);
+    ctx.value.stroke();
+};
 
                 // Function to determine which side the dragging node is closer to
                 const determineSide = (targetNode) => {
@@ -381,48 +553,39 @@ const drawEdge = (parent, child) => {
 
                 // Function to generate the tree from input
                 const generateTree = () => {
-                    let values = [];
-                    let input = treeInput.value.trim();
+    let input = treeInput.value.trim();
 
-                    // Auto-correct incomplete array inputs
-                    if (input.startsWith('[') && !input.endsWith(']')) {
-                        input += ']';
-                    }
+    try {
+        // Attempt to parse as JSON if it looks like an array
+        if (input.startsWith('[') && input.endsWith(']')) {
+            try {
+                input = JSON.parse(input);
+            } catch (e) {
+                // If JSON parsing fails, we'll treat it as a string input
+                console.warn("Failed to parse input as JSON, treating as string.", e);
+            }
+        }
 
-                    // Handle both comma-separated and array-like inputs
-                    if (input.startsWith('[') && input.endsWith(']')) {
-                        try {
-                            values = JSON.parse(input);
-                        } catch (e) {
-                            errorMessage.value = "Invalid input format. Please ensure it's a valid JSON array.";
-                            console.error("JSON parse error:", e);
-                            return;
-                        }
-                    } else {
-                        values = input.split(',').map(val => val.trim());
-                    }
+        // Build the tree
+        root.value = buildTree(input);
 
-                    // Validate the input
-                    const isValid = values.every(val => val === 'null' || /^\d+$/.test(val));
-                    if (!isValid) {
-                        errorMessage.value = "Invalid input format. Use numbers and 'null' separated by commas.";
-                        return;
-                    }
-
-                    errorMessage.value = ''; // Clear any previous error messages
-
-                    console.log('Tree Input:', values); // Debug the input
-                    root.value = buildTree(values);
-
-                    if (!root.value) {
-                        errorMessage.value = "Tree could not be built. Please check your input.";
-                        console.error("Tree could not be built");
-                        return;
-                    }
-                    
-                    layoutTree(root.value);
-                    console.log('Tree generated and laid out'); // Confirm tree is built
-                };
+        if (!root.value) {
+            errorMessage.value = "Tree could not be built. Please check your input.";
+            console.warn("Tree could not be built");
+            return;
+        }
+        
+        // Clear any previous error messages
+        errorMessage.value = '';
+        
+        // Layout the tree
+        layoutTree(root.value);
+    } catch (error) {
+        errorMessage.value = `Error: ${error.message}`;
+        console.error("Error in generateTree:", error);
+        root.value = null;
+    }
+};
 
                 // Function to find a node at a specific position
                 const findNodeAtPosition = (x, y, node = root.value) => {
@@ -434,145 +597,199 @@ const drawEdge = (parent, child) => {
                     return findNodeAtPosition(x, y, node.right);
                 };
 
-                // Function to find an edge at a specific position
-                const findEdgeAtPosition = (x, y, node = root.value) => {
-                    if (!node) return null;
-                    if (node.left && isPointNearLine(x, y, node.x, node.y, node.left.x, node.left.y)) {
-                        return [node, node.left];
-                    }
-                    if (node.right && isPointNearLine(x, y, node.x, node.y, node.right.x, node.right.y)) {
-                        return [node, node.right];
-                    }
-                    const leftResult = findEdgeAtPosition(x, y, node.left);
-                    if (leftResult) return leftResult;
-                    return findEdgeAtPosition(x, y, node.right);
-                };
+                // Function to check if a click is on an add button
+                const checkAddButtonClick = (node, x, y) => {
+    const buttonRadius = nodeRadius.value * 0.3;
+    const offsetX = nodeRadius.value * 0.7;
+    const offsetY = nodeRadius.value * 0.7;
 
-                // Helper function to determine if a point is near a line segment
-                const isPointNearLine = (x, y, x1, y1, x2, y2, tolerance = 10) => {
-                    const A = x - x1;
-                    const B = y - y1;
-                    const C = x2 - x1;
-                    const D = y2 - y1;
-                    const dot = A * C + B * D;
-                    const lenSq = C * C + D * D;
-                    let param = -1;
-                    if (lenSq !== 0) param = dot / lenSq;
-                    let xx, yy;
-                    if (param < 0) {
-                        xx = x1;
-                        yy = y1;
-                    } else if (param > 1) {
-                        xx = x2;
-                        yy = y2;
-                    } else {
-                        xx = x1 + param * C;
-                        yy = y1 + param * D;
-                    }
-                    const dx = x - xx;
-                    const dy = y - yy;
-                    return Math.sqrt(dx * dx + dy * dy) <= tolerance;
-                };
+    const leftX = node.x - offsetX;
+    const leftY = node.y + offsetY;
+    const rightX = node.x + offsetX;
+    const rightY = node.y + offsetY;
+
+    const distanceToLeft = Math.sqrt((x - leftX) ** 2 + (y - leftY) ** 2);
+    const distanceToRight = Math.sqrt((x - rightX) ** 2 + (y - rightY) ** 2);
+
+    if (distanceToLeft <= buttonRadius) {
+        return 'left';
+    } else if (distanceToRight <= buttonRadius) {
+        return 'right';
+    }
+    return null;
+};
+
+const drawInputBox = () => {
+    if (!inputBoxVisible.value) return;
+
+    const boxWidth = nodeRadius.value * 3;
+    const boxHeight = nodeRadius.value * 1.5;
+    const { x, y } = inputBoxPosition.value;
+
+    // Draw the box
+    ctx.value.fillStyle = '#2d2d2d'; // Dark background color
+    ctx.value.strokeStyle = '#7f6df2';
+    ctx.value.lineWidth = 2;
+    ctx.value.beginPath();
+    ctx.value.roundRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight, 5);
+    ctx.value.fill();
+    ctx.value.stroke();
+
+
+    // Draw the text (if any)
+    ctx.value.fillStyle = '#dcddde'; // Light text color
+    ctx.value.font = `${nodeRadius.value * 0.6}px Arial`;
+    ctx.value.textAlign = 'center';
+    ctx.value.textBaseline = 'middle';
+    ctx.value.fillText(inputValue.value, x, y);
+};
 
                 // Function to handle mouse movement events
                 const onMouseMove = (event) => {
-                    const rect = canvas.value.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
-
-                    if (selectedNode.value) {
-                        // Update the position of the selected node
-                        selectedNode.value.targetX = x;
-                        selectedNode.value.targetY = y;
-                        potentialParent.value = findPotentialParent(x, y, selectedNode.value);
-                    } else {
-                        hoveredNode.value = findNodeAtPosition(x, y);
-                        hoveredEdge.value = findEdgeAtPosition(x, y);
-                    }
-                };
-
-                // Function to handle mouse down events
-                const onMouseDown = (event) => {
     const rect = canvas.value.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const clickedNode = findNodeAtPosition(x, y);
-    if (clickedNode) {
-        selectedNode.value = clickedNode;
-        // Highlight the selected node
-        drawNode(selectedNode.value);
+
+    if (selectedNode.value) {
+        selectedNode.value.targetX = x;
+        selectedNode.value.targetY = y;
+        potentialParent.value = findPotentialParent(x, y, selectedNode.value);
     } else {
-        selectedNode.value = null;
+        hoveredNode.value = findNodeAtPosition(x, y);
     }
+};
+
+                // Function to handle mouse down events
+                const onMouseDown = (event) => {
+                    const rect = canvas.value.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    const clickedNode = findNodeAtPosition(x, y);
+                    
+                    if (clickedNode) {
+                        const clickedButton = checkAddButtonClick(clickedNode, x, y);
+                        if (clickedButton) {
+
+                            firstClick.value = true;
+                            inputBoxVisible.value = true;
+                            inputValue.value = '';
+                            inputBoxPosition.value = { 
+                                x: (clickedButton === 'left' ? clickedNode.x-20  : clickedNode.x+20 )  + rect.left,
+                                y: clickedNode.y+rect.top+40
+                            };
+                            inputBoxSide.value = clickedButton;
+                            inputBoxParent.value = clickedNode;
+                            
+
+                        } else {
+                            
+                            selectedNode.value = clickedNode;
+                            console.log('From MouseDown selectedNode.value', selectedNode.value);
+                        }
+                    } else {
+                        selectedNode.value = null;
+                    }
+
+                    // if it's the first click, we don;t want to close the input box
+                    // if it's null, just ignore it
+                    if (firstClick.value) {
+                        firstClick.value = false;
+                    } else if (inputBoxVisible.value && firstClick.value === false) {
+                        window.addEventListener('click', event => {
+                            if (event.target !== inputBoxRef.value) {
+                                inputBoxVisible.value = false;
+                                firstClick.value = true;
+                                 
+                            }
+                        },{ once: true });
+                        // need to fix {once : true} interfere with onblur="this.focus()"=
+                        inputBoxRef.focus();
+
+                    }
+                };
+const handleInputSubmit = () => {
+    if (inputValue.value.trim() !== '') {
+        addNewNode(inputBoxParent.value, inputBoxSide.value, inputValue.value.trim());
+        layoutTree(root.value);
+    }
+    inputBoxVisible.value = false;
+    inputValue.value = '';
+    nextTick(() => {
+        drawTree();
+    });
+};
+const handleInputBlur = () => {
+    inputBoxVisible.value = false;
+    drawTree();
+};
+
+const addNewNode = (parentNode, side, value) => {
+    const newNode = new TreeNode(value);
+    if (side === 'left') {
+        newNode.left = parentNode.left;
+        parentNode.left = newNode;
+    } else if (side === 'right') {
+        newNode.right = parentNode.right;
+        parentNode.right = newNode;
+    }
+    layoutTree(root.value);
+
 };
 
                 // Function to handle mouse up events
                 const onMouseUp = () => {
-    if (selectedNode.value && potentialParent.value) {
-        if (potentialParent.value.swapCandidate) {
-            // **New Code Start**
-            // Check if the potential parent is the immediate parent of the selected node
-            const parentOfSelected = findParent(root.value, selectedNode.value);
-            if (parentOfSelected === potentialParent.value) {
-                // Swap only the values of the nodes
-                const tempVal = selectedNode.value.val;
-                selectedNode.value.val = potentialParent.value.val;
-                potentialParent.value.val = tempVal;
-            } else {
-                // Perform full node swap for non-immediate parent scenarios
-                swapNodes(selectedNode.value, potentialParent.value);
-            }
-            // **New Code End**
-        } else {
-            // Determine which side to attach based on drop position
-            const dropSide = selectedNode.value.targetX < potentialParent.value.x ? 'left' : 'right';
+                    if (selectedNode.value && potentialParent.value) {
+                        if (potentialParent.value.swapCandidate) {
+                            // Swap nodes
+                            swapNodes(selectedNode.value, potentialParent.value);
+                        } else {
+                            // Remove the selected node from its previous parent
+                            removeNodeFromParent(root.value, selectedNode.value);
 
-            if (dropSide === 'left' && potentialParent.value.left === null) {
-                potentialParent.value.left = selectedNode.value;
-            } else if (dropSide === 'right' && potentialParent.value.right === null) {
-                potentialParent.value.right = selectedNode.value;
-            } else {
-                // Fallback to the opposite side if desired side is occupied
-                if (potentialParent.value.left === null) {
-                    potentialParent.value.left = selectedNode.value;
-                } else if (potentialParent.value.right === null) {
-                    potentialParent.value.right = selectedNode.value;
-                } else {
-                    // Both children are occupied; handle accordingly (e.g., notify the user)
-                    console.warn("Both children are occupied. Cannot attach node.");
-                }
-            }
-        }
-        layoutTree(root.value);
-    } else if (selectedNode.value) {
-        // If no potential parent, just update the position of the selected node
-        selectedNode.value.x = selectedNode.value.targetX;
-        selectedNode.value.y = selectedNode.value.targetY;
-    }
-    
-    selectedNode.value = null;
-    potentialParent.value = null;
-};
+                            // Determine which side to attach based on drop position
+                            const dropSide = determineSide(potentialParent.value);
 
+                            if (dropSide === 'left' && potentialParent.value.left === null) {
+                                potentialParent.value.left = selectedNode.value;
+                            } else if (dropSide === 'right' && potentialParent.value.right === null) {
+                                potentialParent.value.right = selectedNode.value;
+                            } else {
+                                // Fallback to the opposite side if desired side is occupied
+                                if (potentialParent.value.left === null) {
+                                    potentialParent.value.left = selectedNode.value;
+                                } else if (potentialParent.value.right === null) {
+                                    potentialParent.value.right = selectedNode.value;
+                                } else {
+                                    // Both children are occupied; handle accordingly
+                                    console.warn("Both children are occupied. Cannot attach node.");
+                                }
+                            }
+                        }
+                        layoutTree(root.value);
+                    } else if (selectedNode.value) {
+                        // If no potential parent, just update the position of the selected node
+                        selectedNode.value.x = selectedNode.value.targetX;
+                        selectedNode.value.y = selectedNode.value.targetY;
+                    }
+                    // the problem is here
+                    // set the value to null after 4 seconds
+                    // the user click on the canvas within the 4 seconds, the selectedNode.value will be set to null immediately
+                    // to do this, we need to use setTimeout and cancel it when the user click on the canvas (handlePageClick)
 
-const animateNodeToTarget = (node) => {
-    if (!node) return;
-    const animate = () => {
-        const dx = node.targetX - node.x;
-        const dy = node.targetY - node.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > 1) {
-            node.x += dx * 0.2;
-            node.y += dy * 0.2;
-            requestAnimationFrame(animate);
-        } else {
-            node.x = node.targetX;
-            node.y = node.targetY;
-        }
-        drawTree();
-    };
-    animate();
-};
+                    lastNode.value = selectedNode.value;
+                    selectedNode.value = null;
+                    potentialParent.value = null;
+                    // timeout lastNode
+                    setTimeout(() => {
+                        lastNode.value = null;
+                    }, 4000);
+            
+
+  
+
+                    // selectedNode.value = null;
+                    // potentialParent.value = null;
+                };
 
                 // Helper function to remove a node from its current parent
                 const removeNodeFromParent = (current, nodeToRemove) => {
@@ -590,103 +807,110 @@ const animateNodeToTarget = (node) => {
 
                 // Function to find a potential parent node for attaching
                 const findPotentialParent = (x, y, draggingNode) => {
-    const threshold = 100;
-    const swapThreshold = nodeRadius.value * 1.5; // Threshold for node swapping
+                    const threshold = 100;
+                    const swapThreshold = nodeRadius.value * 1.5; // Threshold for node swapping
 
-    let closestNode = null;
-    let minDistance = Infinity;
+                    let closestNode = null;
+                    let minDistance = Infinity;
 
-    const allNodes = [];
-    const traverse = (node) => {
-        if (!node) return;
-        allNodes.push(node);
-        traverse(node.left);
-        traverse(node.right);
-    };
-    traverse(root.value);
+                    const allNodes = [];
+                    const traverse = (node) => {
+                        if (!node) return;
+                        allNodes.push(node);
+                        traverse(node.left);
+                        traverse(node.right);
+                    };
+                    traverse(root.value);
 
-    for (let node of allNodes) {
-        if (node === draggingNode || isDescendant(draggingNode, node)) continue;
+                    for (let node of allNodes) {
+                        if (node === draggingNode || isDescendant(draggingNode, node)) continue;
 
-        const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                        const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
 
-        if (distance < swapThreshold) {
-            node.swapCandidate = true;
-            return node; // Return the node to swap with
-        }
+                        if (distance < swapThreshold) {
+                            node.swapCandidate = true;
+                            return node; // Return the node to swap with
+                        }
 
-        if (distance < threshold) {
-            const leftFree = !node.left;
-            const rightFree = !node.right;
+                        if (distance < threshold) {
+                            const leftFree = !node.left;
+                            const rightFree = !node.right;
 
-            if ((leftFree || rightFree) && distance < minDistance) {
-                node.proximitySide = leftFree ? 'left' : 'right';
-                minDistance = distance;
-                closestNode = node;
-            }
-        } else {
-            node.swapCandidate = false;
-        }
-    }
+                            if ((leftFree || rightFree) && distance < minDistance) {
+                                node.proximitySide = leftFree ? 'left' : 'right';
+                                minDistance = distance;
+                                closestNode = node;
+                            }
+                        } else {
+                            node.swapCandidate = false;
+                        }
+                    }
 
-    return closestNode;
-};
+                    return closestNode;
+                };
 
-const swapNodes = (node1, node2) => {
-    // Find the parents of node1 and node2
-    const parent1 = findParent(root.value, node1);
-    const parent2 = findParent(root.value, node2);
+                const swapNodes = (node1, node2) => {
+                    // Find the parents of node1 and node2
+                    const parent1 = findParent(root.value, node1);
+                    const parent2 = findParent(root.value, node2);
+                    // if target node is the parent node of the selected node, only swap the values, not the nodes
+                    if (parent1 === node2 || parent2 === node1) {
+                        const temp = node1.val;
+                        node1.val = node2.val;
+                        node2.val = temp;
+                        return;
+                    }
 
-    if (!parent1 || !parent2) {
-        console.error("Cannot swap root node or node not found");
-        return;
-    }
+                    if (!parent1 || !parent2) {
+                        console.error("Cannot swap root node or node not found");
+                        return;
+                    }
 
-    // Determine which child (left or right) each node is
-    const isLeftChild1 = parent1.left === node1;
-    const isLeftChild2 = parent2.left === node2;
+                    // Determine which child (left or right) each node is
+                    const isLeftChild1 = parent1.left === node1;
+                    const isLeftChild2 = parent2.left === node2;
 
-    // Swap the nodes in their parents
-    if (isLeftChild1) {
-        parent1.left = node2;
-    } else {
-        parent1.right = node2;
-    }
+                    // Swap the nodes in their parents
+                    if (isLeftChild1) {
+                        parent1.left = node2;
+                    } else {
+                        parent1.right = node2;
+                    }
 
-    if (isLeftChild2) {
-        parent2.left = node1;
-    } else {
-        parent2.right = node1;
-    }
+                    if (isLeftChild2) {
+                        parent2.left = node1;
+                    } else {
+                        parent2.right = node1;
+                    }
 
-    // Swap the positions of the nodes
-    const tempX = node1.x;
-    const tempY = node1.y;
-    node1.x = node2.x;
-    node1.y = node2.y;
-    node2.x = tempX;
-    node2.y = tempY;
+                    // Swap the positions of the nodes
+                    const tempX = node1.x;
+                    const tempY = node1.y;
+                    node1.x = node2.x;
+                    node1.y = node2.y;
+                    node2.x = tempX;
+                    node2.y = tempY;
 
-    // Swap the target positions as well
-    const tempTargetX = node1.targetX;
-    const tempTargetY = node1.targetY;
-    node1.targetX = node2.targetX;
-    node1.targetY = node2.targetY;
-    node2.targetX = tempTargetX;
-    node2.targetY = tempTargetY;
+                    // Swap the target positions as well
+                    const tempTargetX = node1.targetX;
+                    const tempTargetY = node1.targetY;
+                    node1.targetX = node2.targetX;
+                    node1.targetY = node2.targetY;
+                    node2.targetX = tempTargetX;
+                    node2.targetY = tempTargetY;
 
-    // We don't swap the children references, as we want to maintain the structure
-    // This means the swapped nodes keep their original subtrees
-};
+                    // We don't swap the children references, as we want to maintain the structure
+                };
 
-// Helper function to find the parent of a node
-const findParent = (current, nodeToFind) => {
-    if (!current) return null;
-    if (current.left === nodeToFind || current.right === nodeToFind) return current;
-    const leftResult = findParent(current.left, nodeToFind);
-    if (leftResult) return leftResult;
-    return findParent(current.right, nodeToFind);
-};
+                // Helper function to find the parent of a node
+                const findParent = (current, nodeToFind) => {
+                    if (!current) return null;
+                    if (current.left === nodeToFind || current.right === nodeToFind) return current;
+                    const leftResult = findParent(current.left, nodeToFind);
+                    if (leftResult) return leftResult;
+                    return findParent(current.right, nodeToFind);
+                };
+
                 // Helper function to check if a node is a descendant of another
                 const isDescendant = (parent, node) => {
                     if (!parent) return false;
@@ -696,83 +920,119 @@ const findParent = (current, nodeToFind) => {
 
                 // Function to delete a node from the tree
                 const deleteNode = (nodeToDelete) => {
-    if (nodeToDelete === root.value) {
-        root.value = null;
-        return;
-    }
+                    if (nodeToDelete === root.value) {
+                        root.value = null;
+                        return;
+                    }
 
-    const removeNode = (current, parent) => {
-        if (!current) return false;
-        if (current === nodeToDelete) {
-            // Case 1: Node to be deleted is a leaf
-            if (!current.left && !current.right) {
-                if (parent.left === current) {
-                    parent.left = null;
-                } else {
-                    parent.right = null;
-                }
-            }
-            // Case 2: Node to be deleted has only one child
-            else if (!current.left) {
-                if (parent.left === current) {
-                    parent.left = current.right;
-                } else {
-                    parent.right = current.right;
-                }
-            }
-            else if (!current.right) {
-                if (parent.left === current) {
-                    parent.left = current.left;
-                } else {
-                    parent.right = current.left;
-                }
-            }
-            // Case 3: Node to be deleted has two children
-            else {
-                const minNode = findMinNode(current.right);
-                current.val = minNode.val;
-                removeNode(current.right, current);
-            }
-            return true;
-        }
-        return removeNode(current.left, current) || removeNode(current.right, current);
-    };
+                    const removeNode = (current, parent) => {
+                        if (!current) return false;
+                        if (current === nodeToDelete) {
+                            // Handle deletion cases
+                            if (!current.left && !current.right) {
+                                if (parent.left === current) {
+                                    parent.left = null;
+                                } else {
+                                    parent.right = null;
+                                }
+                            } else if (!current.left) {
+                                if (parent.left === current) {
+                                    parent.left = current.right;
+                                } else {
+                                    parent.right = current.right;
+                                }
+                            } else if (!current.right) {
+                                if (parent.left === current) {
+                                    parent.left = current.left;
+                                } else {
+                                    parent.right = current.left;
+                                }
+                            } else {
+                                const minNode = findMinNode(current.right);
+                                current.val = minNode.val;
+                                removeNode(current.right, current);
+                            }
+                            return true;
+                        }
+                        return removeNode(current.left, current) || removeNode(current.right, current);
+                    };
 
-    const findMinNode = (node) => {
-        while (node.left) {
-            node = node.left;
-        }
-        return node;
-    };
+                    const findMinNode = (node) => {
+                        while (node.left) {
+                            node = node.left;
+                        }
+                        return node;
+                    };
 
-    removeNode(root.value, null);
-    layoutTree(root.value);
-};
+                    removeNode(root.value, null);
+                    layoutTree(root.value);
+                };
 
+                watch(selectedNode, (newValue) => {
+                    if (newValue) {
+                        console.log('Selected node:', newValue.val);
+                    } else {
+                        console.log('No node selected');
+                    }
+                },{ immediate: true });
                 // Initialize the canvas and start the animation loop
                 onMounted(() => {
-    nextTick(() => {
-        canvas.value = document.querySelector('canvas');
-        setupCanvas();
-        if (canvas.value) {
-            generateTree();
-            animate();
+                    
 
-            // Add keyboard event listener for deleting nodes
-            window.addEventListener('resize', setupCanvas);
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'Delete' && selectedNode.value) {
-                    deleteNode(selectedNode.value);
-                    selectedNode.value = null;
-                }
-            });
+                    nextTick(() => {
+                        canvas.value = document.querySelector('canvas');
+                        setupCanvas();
+                        if (canvas.value) {
+                            generateTree();
+                            animate();
+
+                            // Add keyboard event listener for deleting nodes
+                            window.addEventListener('resize', setupCanvas);
+                            // event listener for when I select a node, and then press delete, it will delete the node
+                            // The selectedNode.value is returnning null, even though from onMouseDown, it is not null
+                            // this means that the selectedNode.value is not being updated
+                            // we can fix this by adding a watcher to the selectedNode.value
+                            // but watcher won't fix all the issues, because selectedNode.value is not persisting after the mouseup event
+                            // to fix this, we can add a global event listener to the window object, and then check if the delete key is pressed (the code looks like: globalThis.addEventListener('keydown', (event) => { console.log('event.key', event.key); });)
+                            // if the delete key is pressed, we can delete the selectedNode.value 
+                            // to make selectedNode persist after mouseup event, we can add a global event listener to the window object, and then check if the mouseup event is triggered, if it is triggered, we can set the selectedNode.value to null
+                            
+                            window.addEventListener('keydown', (event) => {
+                                console.log('Change detected');
+                                console.log('event.key', event.key);
+                                console.log('lastNode.value', lastNode.value);
+                                if (event.key === 'Backspace' && lastNode.value) {
+                                    console.log('Delete key pressed');
+                                    deleteNode(lastNode.value);
+                                    lastNode.value = null;
+                                }
+                            });
+
+                            // close the input box when clicked outside
+                            // it's not enough to have inputBoxVisible.value = True, since if so we will immediately set it to false
+                            // we need to check if the input box is visible, and then set it to false
+                            // we can do this by adding a global event listener to the window object, and then check if the mouseup event is triggered, if it is triggered, we can set the inputBoxVisible.value to false
+                            
+
+                            
 
                         } else {
                             console.error("Canvas is not available");
                         }
                     });
                 });
+            //     onUnmounted(() => {
+            //     // Remove the event listener when component is destroyed
+            //     document.removeEventListener('mousedown', closeInputBoxOnClickOutside);
+            // });
 
+            const closeInputBoxOnClickOutside = (event) => {
+                console.log(inputBoxVisible.value);
+                if (inputBoxVisible.value) {   
+                    inputBoxVisible.value = false;
+                }
+
+            };
                 // Watch for changes in the tree input and regenerate the tree
                 watch(treeInput, generateTree);
 
@@ -784,7 +1044,17 @@ const findParent = (current, nodeToFind) => {
                     onMouseDown,
                     onMouseUp,
                     errorMessage,
-                };
+                    inputBoxRef,
+    inputBoxVisible,
+    inputValue,
+    handleInputSubmit,
+    handleInputBlur,
+    inputBoxPosition,
+    nodeRadius,
+    handlePageClick,
+    preventClose,
+    closeInputBoxOnClickOutside
+};
             }
         }).mount('#app');
     </script>
