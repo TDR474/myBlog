@@ -266,7 +266,7 @@
             return null;
         }
         const num = Number(val);
-        return isNaN(num) ? val : num;
+        return isNaN(num) ? null : num;  // Corrected: return null for invalid values
     });
     
     if (values.length === 0) return null;
